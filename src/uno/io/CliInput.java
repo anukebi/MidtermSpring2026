@@ -1,4 +1,8 @@
-package uno;
+package uno.io;
+
+import uno.rule.RulesValidator;
+import uno.model.card.Card;
+import uno.model.card.CardColor;
 
 import java.util.List;
 import java.util.Scanner;
@@ -11,7 +15,7 @@ public class CliInput {
     this.scanner = scanner;
   }
 
-  public int askCardChoice(List<String> hand, String upCard, String calledColor) {
+  public int askCardChoice(List<Card> hand, Card upCard, CardColor calledColor) {
     while (true) {
       System.out.print("Choose card index/code or draw: ");
       String input = scanner.nextLine().trim().toUpperCase();
@@ -27,8 +31,8 @@ public class CliInput {
       } catch (Exception ignored) {}
 
       for (int i = 0; i < hand.size(); i++) {
-        if (hand.get(i).equals(input)) {
-          if (RulesValidator.isValid(input, upCard, calledColor)) {
+        if (hand.get(i).code().equals(input)) {
+          if (RulesValidator.isValid(hand.get(i), upCard, calledColor)) {
             return i;
           }
           System.out.println("That card is not legal.");
@@ -39,29 +43,21 @@ public class CliInput {
     }
   }
 
-  public boolean askPlayDrawnCard(String drawn) {
+  public boolean askPlayDrawnCard(Card drawn) {
     System.out.print("Play drawn card " + drawn + "? y/n: ");
-    String answer = scanner.nextLine();
+    var answer = scanner.nextLine();
     return answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes");
   }
 
-  public String askColor() {
+  public CardColor askColor() {
     while (true) {
       System.out.print("Call color R/Y/G/B: ");
-      String input = scanner.nextLine().trim().toUpperCase();
-      if (input.equals("R")) {
-        return "R";
+      var input = scanner.nextLine().trim().toUpperCase();
+      try {
+        return CardColor.fromCode(input);
+      } catch (Exception e) {
+        System.out.println("Bad color.");
       }
-      if (input.equals("Y")) {
-        return "Y";
-      }
-      if (input.equals("G")) {
-        return "G";
-      }
-      if (input.equals("B")) {
-        return "B";
-      }
-      System.out.println("Bad color.");
     }
   }
 }
