@@ -1,3 +1,4 @@
+import uno.game.GameConfig;
 import uno.rule.BotLogic;
 import uno.model.CardMapper;
 import uno.io.CliInput;
@@ -19,46 +20,29 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int bots = 3;
-        int games = 1;
-        boolean human = false;
-        long seed = System.currentTimeMillis();
-        boolean quiet = false;
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("--bots") && i + 1 < args.length) {
-                bots = Integer.parseInt(args[++i]);
-            } else if (args[i].equals("--games") && i + 1 < args.length) {
-                games = Integer.parseInt(args[++i]);
-            } else if (args[i].equals("--human")) {
-                human = true;
-            } else if (args[i].equals("--quiet")) {
-                quiet = true;
-            } else if (args[i].equals("--seed") && i + 1 < args.length) {
-                seed = Long.parseLong(args[++i]);
-            } else if (args[i].equals("--self-test")) {
-                selfTest();
-                return;
-            } else if (args[i].equals("--help")) {
-                System.out.println("Usage: scripts/run.sh [--bots N] [--games N] [--human] [--quiet] [--seed N]");
-                return;
-            }
+        var config = new GameConfig(args);
+        if (config.isSelfTest()) {
+            selfTest();
+            return;
+        } else if (config.isHelp()) {
+            System.out.println("Usage: scripts/run.sh [--bots N] [--games N] [--human] [--quiet] [--seed N]");
+            return;
         }
 
-        var random = new Random(seed);
-        var state = new GameState(random, bots, human);
+        var random = new Random(config.getSeed());
+        var state = new GameState(random, config.getBots(), config.isHuman());
         if (state.playerCount() < 2 || state.playerCount() > 4) {
             System.out.println("UNO needs 2 to 4 players.");
             return;
         }
 
-        var cliOutput = new CliOutput(quiet);
+        var cliOutput = new CliOutput(config.isQuiet());
         var cliInput = new CliInput(new Scanner(System.in));
 
         var deck = new Deck(random);
         var engine = new GameEngine(state, deck, cliOutput, cliInput);
 
-        for (int g = 1; g <= games; g++) {
+        for (int g = 1; g <= config.getGames(); g++) {
             cliOutput.printGameHeader(g);
             engine.playGame();
         }

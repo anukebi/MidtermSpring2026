@@ -4,7 +4,10 @@ import uno.model.card.Card;
 import uno.model.card.CardColor;
 import uno.model.card.CardRank;
 
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public final class BotLogic {
 
@@ -44,28 +47,17 @@ public final class BotLogic {
   }
 
   public static CardColor chooseColor(List<Card> hand) {
-    int r = 0;
-    int y = 0;
-    int g = 0;
-    int b = 0;
+    EnumMap<CardColor, Integer> colorCounts = new EnumMap<>(CardColor.class);
 
     for (var card : hand) {
-      switch (card.color()) {
-        case RED -> r++;
-        case YELLOW -> y++;
-        case GREEN -> g++;
-        case BLUE -> b++;
-      }
+      colorCounts.put(card.color(), colorCounts.getOrDefault(card.color(), 0) + 1);
     }
 
-    if (r >= y && r >= g && r >= b) {
-      return CardColor.RED;
-    } else if (y >= r && y >= g && y >= b) {
-      return CardColor.YELLOW;
-    } else if (g >= r && g >= y && g >= b) {
-      return CardColor.GREEN;
-    } else {
-      return CardColor.BLUE;
-    }
+    return colorCounts.entrySet()
+        .stream()
+        .filter(e -> e.getKey() != CardColor.WILD)
+        .max(Comparator.comparingInt(Map.Entry::getValue))
+        .map(Map.Entry::getKey)
+        .orElseGet(() -> colorCounts.entrySet().iterator().next().getKey());
   }
 }
