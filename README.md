@@ -34,6 +34,10 @@ W4   wild draw four
 draw draw a card
 ```
 
+### Extension: stack draw cards
+
+When a +2 or W4 is played, the next player may play a matching draw card to pass the stack, or type `draw` to take all pending cards. See `docs/extension-readiness.md`.
+
 ## Characterization Checks
 
 ```bash
@@ -55,7 +59,7 @@ Your pull request must include:
 
 * refactored source code
 * characterization tests
-* `docs/refactoring-report.md`
+* `docs/refactoring-report-final.md`
 * `docs/extension-readiness.md`
 
 Do not submit a zip file instead of a pull request unless the instructor explicitly asks for it.
