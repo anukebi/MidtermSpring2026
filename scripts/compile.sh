@@ -3,4 +3,4 @@ set -eu
 
 rm -rf out
 mkdir -p out
-javac -d out src/*.java
+find src -name '*.java' -print | xargs javac -d out
