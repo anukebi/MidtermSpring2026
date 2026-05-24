@@ -15,6 +15,12 @@ public final class RulesValidator {
     return isValid(card, calledColor != null ? calledColor : upCard.color(), upCard.rank(), upCard.value());
   }
 
+  public static boolean canStack(Card card, int pendingDrawAmount) {
+    return card.rank() == CardRank.DRAW
+        && card.value() != null
+        && card.value() == pendingDrawAmount;
+  }
+
   public static boolean isValid(Card card, CardColor calledColor, CardRank calledRank, Integer calledNumber) {
     if (Set.of(CardColor.WILD, calledColor).contains(card.color())) {
       return true;

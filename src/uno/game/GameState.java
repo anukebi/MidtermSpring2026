@@ -17,6 +17,8 @@ public class GameState {
   private GameDirection direction;
   private Card upCard;
   private CardColor calledColor;
+  private int pendingDraw;
+  private int pendingDrawAmount;
 
   public GameState(Random random, int bots, boolean human) {
     this.players = new ArrayList<>();
@@ -40,6 +42,30 @@ public class GameState {
     direction = GameDirection.FORWARD;
     upCard = null;
     calledColor = null;
+    pendingDraw = 0;
+    pendingDrawAmount = 0;
+  }
+
+  public int getPendingDraw() {
+    return pendingDraw;
+  }
+
+  public int getPendingDrawAmount() {
+    return pendingDrawAmount;
+  }
+
+  public void startPendingDraw(int amount) {
+    pendingDraw = amount;
+    pendingDrawAmount = amount;
+  }
+
+  public void addPendingDraw(int amount) {
+    pendingDraw += amount;
+  }
+
+  public void clearPendingDraw() {
+    pendingDraw = 0;
+    pendingDrawAmount = 0;
   }
 
   public int playerCount() {

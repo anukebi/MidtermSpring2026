@@ -15,9 +15,13 @@ public class CliInput {
     this.scanner = scanner;
   }
 
-  public int askCardChoice(List<Card> hand, Card upCard, CardColor calledColor) {
+  public int askCardChoice(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     while (true) {
-      System.out.print("Choose card index/code or draw: ");
+      if (pendingDrawAmount > 0) {
+        System.out.print("Stack +" + pendingDrawAmount + " or draw: ");
+      } else {
+        System.out.print("Choose card index/code or draw: ");
+      }
       String input = scanner.nextLine().trim().toUpperCase();
       if (input.equals("DRAW")) {
         return -1;
@@ -26,16 +30,26 @@ public class CliInput {
       try {
         int index = Integer.parseInt(input);
         if (index >= 0 && index < hand.size()) {
-          return index;
+          if (pendingDrawAmount == 0 || RulesValidator.canStack(hand.get(index), pendingDrawAmount)) {
+            return index;
+          }
+          System.out.println("Must play a matching +" + pendingDrawAmount + " or draw.");
+          continue;
         }
       } catch (Exception ignored) {}
 
       for (int i = 0; i < hand.size(); i++) {
         if (hand.get(i).code().equals(input)) {
-          if (RulesValidator.isValid(hand.get(i), upCard, calledColor)) {
+          if (pendingDrawAmount > 0) {
+            if (RulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
+              return i;
+            }
+            System.out.println("Must play a matching +" + pendingDrawAmount + " or draw.");
+          } else if (RulesValidator.isValid(hand.get(i), upCard, calledColor)) {
             return i;
+          } else {
+            System.out.println("That card is not legal.");
           }
-          System.out.println("That card is not legal.");
         }
       }
 

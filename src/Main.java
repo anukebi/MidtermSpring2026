@@ -81,7 +81,7 @@ public class Main {
         h.add(CardMapper.getCard("B3"));
         h.add(CardMapper.getCard("R4"));
         h.add(CardMapper.getCard("W"));
-        if (BotLogic.chooseCardIndex(h, CardMapper.getCard("R9"), null) == 1) passed++;
+        if (BotLogic.chooseCardIndex(h, CardMapper.getCard("R9"), null, 0) == 1) passed++;
         else fail("bot normal before wild");
 
         List<Card> h2 = new ArrayList<>();

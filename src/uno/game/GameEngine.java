@@ -56,9 +56,16 @@ public class GameEngine {
   private boolean playTurn() {
     var player = state.getCurrentPlayer();
     cliOutput.printTurn(player, state.getUpCard(), state.getCalledColor());
+    if (state.getPendingDraw() > 0) {
+      cliOutput.printPendingDraw(player, state.getPendingDraw());
+    }
 
     int chosen = resolveCardChoice(player);
     if (chosen == -1) {
+      if (state.getPendingDraw() > 0) {
+        resolvePendingDraw(player);
+        state.clearPendingDraw();
+      }
       state.advancePlayer();
       return false;
     }
@@ -67,14 +74,15 @@ public class GameEngine {
   }
 
   private int resolveCardChoice(Player player) {
+    int pendingAmount = state.getPendingDrawAmount();
     int chosen;
     if (player.getType() == PlayerType.HUMAN) {
-      chosen = cliInput.askCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor());
+      chosen = cliInput.askCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
     } else {
-      chosen = BotLogic.chooseCardIndex(player.getHand(), state.getUpCard(), state.getCalledColor());
+      chosen = BotLogic.chooseCardIndex(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
     }
 
-    if (chosen == -1) {
+    if (chosen == -1 && state.getPendingDraw() == 0) {
       var drawn = deck.draw();
       player.addCard(drawn);
       cliOutput.printDraw(player, drawn);
@@ -101,7 +109,14 @@ public class GameEngine {
     }
 
     var card = hand.get(chosen);
-    if (!RulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
+    if (state.getPendingDraw() > 0) {
+      if (!RulesValidator.canStack(card, state.getPendingDrawAmount())) {
+        cliOutput.printIllegalPlayPenalty(player, card);
+        hand.add(deck.draw());
+        state.advancePlayer();
+        return false;
+      }
+    } else if (!RulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
       cliOutput.printIllegalPlayPenalty(player, card);
       hand.add(deck.draw());
       state.advancePlayer();
@@ -162,11 +177,12 @@ public class GameEngine {
         var toDraw = 2;
         if (card.color() == CardColor.WILD) {
           triggerColorUpdate(player);
-          toDraw = 4;
         }
-        state.advancePlayer();
-        drawToCurrentHand(toDraw);
-        cliOutput.printDraws(state.getCurrentPlayer(), toDraw);
+        if (state.getPendingDraw() > 0) {
+          state.addPendingDraw(toDraw);
+        } else {
+          state.startPendingDraw(toDraw);
+        }
         state.advancePlayer();
       }
       case CHANGE -> {
@@ -177,10 +193,12 @@ public class GameEngine {
     }
   }
 
-  private void drawToCurrentHand(int count) {
+  private void resolvePendingDraw(Player player) {
+    int count = state.getPendingDraw();
     for (int i = 0; i < count; i++) {
-      state.getCurrentPlayer().addCard(deck.draw());
+      player.addCard(deck.draw());
     }
+    cliOutput.printDraws(player, count);
   }
 
   private void triggerColorUpdate(Player player) {

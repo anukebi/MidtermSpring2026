@@ -13,7 +13,16 @@ public final class BotLogic {
 
   private BotLogic() {}
 
-  public static int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor) {
+  public static int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
+    if (pendingDrawAmount > 0) {
+      for (int i = 0; i < hand.size(); i++) {
+        if (RulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
     int drawTwo = findFirstLegal(hand, upCard, calledColor, CardRank.DRAW);
     if (drawTwo >= 0) {
       return drawTwo;

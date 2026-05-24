@@ -28,6 +28,10 @@ public class CliOutput {
     out.println(player.getName() + " hand: " + formatHand(player.getHand()));
   }
 
+  public void printPendingDraw(Player player, int pendingDraw) {
+    out.println(player.getName() + " must stack or draw " + pendingDraw + " cards.");
+  }
+
   public void printDraw(Player player, Card drawn) {
     out.println(player.getName() + " draws " + drawn);
   }
@@ -57,11 +61,7 @@ public class CliOutput {
   }
 
   public void printDraws(Player player, int count) {
-    if (count == 2) {
-      out.println(player.getName() + " draws two.");
-    } else if (count == 4) {
-      out.println(player.getName() + " draws four.");
-    }
+    out.println(player.getName() + " draws " + count + ".");
   }
 
   public void printSafetyLimit() {

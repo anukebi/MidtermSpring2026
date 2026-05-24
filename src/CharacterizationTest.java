@@ -32,6 +32,7 @@ public class CharacterizationTest {
     testReverseTwoPlayers();
     testIllegalMismatch();
     testRulesValidatorWithNullCalledColor();
+    testDrawStacking();
 
     System.out.println("Characterization: " + passed + " passed, " + failed + " failed.");
     if (failed > 0) {
@@ -112,21 +113,43 @@ public class CharacterizationTest {
         CardMapper.getCard("R4"),
         CardMapper.getCard("W"));
     check("bot prefers matching number over wild",
-        BotLogic.chooseCardIndex(hand, CardMapper.getCard("R9"), null) == 1);
+        BotLogic.chooseCardIndex(hand, CardMapper.getCard("R9"), null, 0) == 1);
 
     List<Card> hand2 = List.of(
         CardMapper.getCard("R1"),
         CardMapper.getCard("R+2"),
         CardMapper.getCard("R5"));
     check("bot prefers draw two when legal",
-        BotLogic.chooseCardIndex(hand2, CardMapper.getCard("G+2"), null) == 1);
+        BotLogic.chooseCardIndex(hand2, CardMapper.getCard("G+2"), null, 0) == 1);
 
     List<Card> hand3 = List.of(
         CardMapper.getCard("B1"),
         CardMapper.getCard("YS"),
         CardMapper.getCard("R5"));
     check("bot prefers skip over number",
-        BotLogic.chooseCardIndex(hand3, CardMapper.getCard("RS"), null) == 1);
+        BotLogic.chooseCardIndex(hand3, CardMapper.getCard("RS"), null, 0) == 1);
+  }
+
+  private static void testDrawStacking() {
+    var plusTwo = CardMapper.getCard("G+2");
+    var wildFour = CardMapper.getCard("W4");
+    check("+2 stacks on pending +2", RulesValidator.canStack(plusTwo, 2));
+    check("W4 stacks on pending +4", RulesValidator.canStack(wildFour, 4));
+    check("+2 does not stack on pending +4", !RulesValidator.canStack(plusTwo, 4));
+
+    var state = new GameState(new Random(1), 2, false);
+    state.initializeState();
+    state.startPendingDraw(2);
+    state.addPendingDraw(2);
+    check("pending draw accumulates", state.getPendingDraw() == 4);
+    state.clearPendingDraw();
+    check("pending draw clears", state.getPendingDraw() == 0);
+
+    List<Card> hand = List.of(CardMapper.getCard("R+2"), CardMapper.getCard("R5"));
+    check("bot stacks +2 when pending +2",
+        BotLogic.chooseCardIndex(hand, CardMapper.getCard("G+2"), null, 2) == 0);
+    check("bot draws when no stack card",
+        BotLogic.chooseCardIndex(List.of(CardMapper.getCard("R5")), CardMapper.getCard("G+2"), null, 2) == -1);
   }
 
   private static void testBotColorChoice() {
