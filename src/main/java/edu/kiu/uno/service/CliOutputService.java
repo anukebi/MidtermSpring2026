@@ -1,22 +1,31 @@
-package edu.kiu.uno.io;
+package edu.kiu.uno.service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import edu.kiu.uno.game.GameState;
+import org.springframework.stereotype.Service;
+
+import edu.kiu.uno.service.game.GameState;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 
-public class CliOutput {
+@Service
+@RequiredArgsConstructor
+public class CliOutputService {
 
   private final PrintStream out;
+  private final GameState state;
 
-  public CliOutput(boolean quiet) {
-    this.out = quiet ? new PrintStream(new ByteArrayOutputStream()) : System.out;
+  @PreDestroy
+  public void printFinalScores() {
+    System.out.println("\nFinal scores:");
+    state.getPlayers()
+        .forEach(player -> System.out.println(player.getName() + ": " + player.getScore()));
   }
 
   public void printGameHeader(int gameNumber) {
@@ -66,12 +75,6 @@ public class CliOutput {
 
   public void printSafetyLimit() {
     out.println("Game stopped at safety limit.");
-  }
-
-  public void printFinalScores(GameState state) {
-    System.out.println("\nFinal scores:");
-    state.getPlayers()
-        .forEach(player -> System.out.println(player.getName() + ": " + player.getScore()));
   }
 
   public static String formatHand(List<Card> cards) {

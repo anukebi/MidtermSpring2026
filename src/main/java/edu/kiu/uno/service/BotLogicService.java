@@ -1,22 +1,28 @@
-package edu.kiu.uno.rule;
+package edu.kiu.uno.service;
 
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
-import lombok.experimental.UtilityClass;
+import edu.kiu.uno.util.RulesValidator;
+import lombok.RequiredArgsConstructor;
 
-@UtilityClass
-public final class BotLogic {
+@RequiredArgsConstructor
+@Service
+public class BotLogicService {
 
-  public static int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
+  private final RulesValidator rulesValidator;
+
+  public int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     if (pendingDrawAmount > 0) {
       for (int i = 0; i < hand.size(); i++) {
-        if (RulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
+        if (rulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
           return i;
         }
       }
@@ -43,19 +49,19 @@ public final class BotLogic {
     return -1;
   }
 
-  private static int findFirstLegal(List<Card> hand, Card upCard, CardColor calledColor, CardRank targetRank) {
+  private int findFirstLegal(List<Card> hand, Card upCard, CardColor calledColor, CardRank targetRank) {
     for (int i = 0; i < hand.size(); i++) {
       var card = hand.get(i);
       if (card.rank().equals(targetRank)
           && card.color() != CardColor.WILD
-          && RulesValidator.isValid(card, upCard, calledColor)) {
+          && rulesValidator.isValid(card, upCard, calledColor)) {
         return i;
       }
     }
     return -1;
   }
 
-  public static CardColor chooseColor(List<Card> hand) {
+  public CardColor chooseColor(List<Card> hand) {
     EnumMap<CardColor, Integer> colorCounts = new EnumMap<>(CardColor.class);
 
     for (var card : hand) {

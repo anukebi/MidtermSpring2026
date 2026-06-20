@@ -1,4 +1,4 @@
-package edu.kiu.uno.game;
+package edu.kiu.uno.service.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,20 +6,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import edu.kiu.uno.model.CardMapper;
+import org.springframework.stereotype.Component;
+
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
+import edu.kiu.uno.util.CardMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequiredArgsConstructor
+@Component
 public class Deck {
 
+  private final Random random;
+  private final CardMapper cardMapper;
   private final List<Card> drawPile = new LinkedList<>();
   private final List<Card> discardPile = new ArrayList<>();
-  private final Random random;
 
   public int size() {
     return drawPile.size();
@@ -68,7 +72,7 @@ public class Deck {
     }
 
     var card = drawPile.isEmpty()
-        ? CardMapper.getCard(CardColor.WILD, CardRank.CHANGE, null)
+        ? cardMapper.getCard(CardColor.WILD, CardRank.CHANGE, null)
         : drawPile.removeFirst();
 
     if (!silent) {
@@ -83,7 +87,7 @@ public class Deck {
 
   private void addCard(CardColor color, CardRank rank, Integer value, int times) {
     for (int i = 0; i < times; i++) {
-      drawPile.add(CardMapper.getCard(color, rank, value));
+      drawPile.add(cardMapper.getCard(color, rank, value));
     }
   }
 

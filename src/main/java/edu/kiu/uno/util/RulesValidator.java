@@ -1,27 +1,28 @@
-package edu.kiu.uno.rule;
+package edu.kiu.uno.util;
 
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.stereotype.Component;
+
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public final class RulesValidator {
+@Component
+public class RulesValidator {
 
-  public static boolean isValid(Card card, Card upCard, CardColor calledColor) {
+  public boolean isValid(Card card, Card upCard, CardColor calledColor) {
     return isValid(card, calledColor != null ? calledColor : upCard.color(), upCard.rank(), upCard.value());
   }
 
-  public static boolean canStack(Card card, int pendingDrawAmount) {
+  public boolean canStack(Card card, int pendingDrawAmount) {
     return card.rank() == CardRank.DRAW
         && card.value() != null
         && card.value() == pendingDrawAmount;
   }
 
-  public static boolean isValid(Card card, CardColor calledColor, CardRank calledRank, Integer calledNumber) {
+  public boolean isValid(Card card, CardColor calledColor, CardRank calledRank, Integer calledNumber) {
     if (Set.of(CardColor.WILD, calledColor).contains(card.color())) {
       return true;
     }

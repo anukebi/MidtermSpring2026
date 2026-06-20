@@ -1,17 +1,21 @@
-package edu.kiu.uno.io;
+package edu.kiu.uno.service;
 
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.stereotype.Service;
+
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
-import edu.kiu.uno.rule.RulesValidator;
+import edu.kiu.uno.util.RulesValidator;
 import lombok.RequiredArgsConstructor;
 
+@Service
 @RequiredArgsConstructor
-public class CliInput {
+public class CliInputService {
 
   private final Scanner scanner;
+  private final RulesValidator rulesValidator;
 
   public int askCardChoice(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     while (true) {
@@ -28,7 +32,7 @@ public class CliInput {
       try {
         int index = Integer.parseInt(input);
         if (index >= 0 && index < hand.size()) {
-          if (pendingDrawAmount == 0 || RulesValidator.canStack(hand.get(index), pendingDrawAmount)) {
+          if (pendingDrawAmount == 0 || rulesValidator.canStack(hand.get(index), pendingDrawAmount)) {
             return index;
           }
           System.out.println("Must play a matching +" + pendingDrawAmount + " or draw.");
@@ -39,11 +43,11 @@ public class CliInput {
       for (int i = 0; i < hand.size(); i++) {
         if (hand.get(i).code().equals(input)) {
           if (pendingDrawAmount > 0) {
-            if (RulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
+            if (rulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
               return i;
             }
             System.out.println("Must play a matching +" + pendingDrawAmount + " or draw.");
-          } else if (RulesValidator.isValid(hand.get(i), upCard, calledColor)) {
+          } else if (rulesValidator.isValid(hand.get(i), upCard, calledColor)) {
             return i;
           } else {
             System.out.println("That card is not legal.");

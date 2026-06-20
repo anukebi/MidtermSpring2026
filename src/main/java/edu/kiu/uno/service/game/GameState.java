@@ -1,4 +1,4 @@
-package edu.kiu.uno.game;
+package edu.kiu.uno.service.game;
 
 import java.util.ArrayList;
 import java.util.List;
