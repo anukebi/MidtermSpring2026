@@ -21,13 +21,6 @@ public class CliOutputService {
   private final PrintStream out;
   private final GameState state;
 
-  @PreDestroy
-  public void printFinalScores() {
-    System.out.println("\nFinal scores:");
-    state.getPlayers()
-        .forEach(player -> System.out.println(player.getName() + ": " + player.getTotalScore()));
-  }
-
   public void printGameHeader(int gameNumber) {
     out.println("\n=== Game " + gameNumber + " ===");
   }
@@ -77,10 +70,21 @@ public class CliOutputService {
     out.println("Game stopped at safety limit.");
   }
 
+  public void printFinalScores() {
+    System.out.println("\nFinal scores:");
+    state.getPlayers()
+        .forEach(player -> System.out.println(player.getName() + ": " + player.getTotalScore()));
+  }
+
+  public <T> void printQueryResult(String query, T result) {
+    out.println("Query: " + query);
+    out.println("Result: " + result);
+  }
+
   public static String formatHand(List<Card> cards) {
     return IntStream.range(0, cards.size())
         .mapToObj(i -> i + ":" + cards.get(i) + (i < cards.size() - 1 ? " " : ""))
         .collect(Collectors.joining());
   }
-  
+
 }

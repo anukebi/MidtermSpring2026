@@ -1,7 +1,10 @@
 package edu.kiu.uno.service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,12 @@ public class RoundService {
 	@Transactional
 	public void endRound(RoundEntity roundEntity, PlayerEntity playerEntity) {
 		roundRepository.save(roundEntity.setWinner(playerEntity).setEndTime(LocalDateTime.now()));
+	}
+
+	@Transactional(readOnly = true)
+	public Map<String, Long> getPlayerWinCounts() {
+		return roundRepository.findPlayerWinCounts().stream()
+				.collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 	}
 
 }

@@ -22,6 +22,7 @@ public class GameProperties {
   private boolean human = false;
   private boolean quiet = false;
   private boolean help = false;
+  private String query = null;
   private long turnSafetyLimit = 3000L;
 
 }

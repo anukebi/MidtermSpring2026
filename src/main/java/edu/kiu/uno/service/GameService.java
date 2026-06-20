@@ -1,7 +1,9 @@
 package edu.kiu.uno.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,10 @@ public class GameService {
 	@Transactional
 	public void endGame(GameEntity game) {
 		gameRepository.save(game.setEndTime(LocalDateTime.now()));
+	}
+
+	public List<GameEntity> getAllGames() {
+		return gameRepository.findAll(Sort.sort(GameEntity.class).by(GameEntity::getStartTime).descending());
 	}
 
 }

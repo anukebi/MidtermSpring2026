@@ -41,6 +41,7 @@ public class GameEngine {
     }
     persistenceService.endGame(ctx);
     log.info("run:: All games completed. Final scores: {}", state.getPlayers().stream().map(p -> p.getName() + ": " + p.getTotalScore()).toList());
+    cliOutputService.printFinalScores();
   }
 
   public void playRound(PersistenceContext ctx, int round) {

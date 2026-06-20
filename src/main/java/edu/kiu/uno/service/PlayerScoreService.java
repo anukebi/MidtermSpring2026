@@ -1,5 +1,10 @@
 package edu.kiu.uno.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,17 @@ public class PlayerScoreService {
 	@Transactional
 	public void updatePlayerParticipation(PlayerScoreEntity playerScoreEntity, long score) {
 		playerScoreRepository.save(playerScoreEntity.setScore(score));
+	}
+
+	@Transactional(readOnly = true)
+	public PlayerEntity getMostActivePlayer() {
+		return playerScoreRepository.findMostActivePlayer().findFirst().orElse(null);
+	}
+
+	@Transactional(readOnly = true)
+	public Map<String, Long> getPlayerScores() {
+		return playerScoreRepository.findPlayerScores().stream()
+				.collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 	}
 
 }

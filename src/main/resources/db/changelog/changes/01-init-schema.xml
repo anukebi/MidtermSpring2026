@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="01-init-schema" author="anukebi">
+
+        <createTable tableName="games">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="players">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="rounds">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="round_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="TIMESTAMP"/>
+            <column name="game_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="winner_id" type="UUID"/>
+        </createTable>
+
+        <createTable tableName="player_scores">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="round_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="player_id" type="UUID"/>
+            <column name="score" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="rounds" baseColumnNames="game_id"
+                                 referencedTableName="games" referencedColumnNames="id"
+                                 constraintName="fk_rounds_games" />
+
+        <addForeignKeyConstraint baseTableName="rounds" baseColumnNames="winner_id"
+                                 referencedTableName="players" referencedColumnNames="id"
+                                 constraintName="fk_rounds_players" />
+
+        <addForeignKeyConstraint baseTableName="player_scores" baseColumnNames="round_id"
+                                 referencedTableName="rounds" referencedColumnNames="id"
+                                 constraintName="fk_player_scores_rounds" />
+
+        <addForeignKeyConstraint baseTableName="player_scores" baseColumnNames="player_id"
+                                 referencedTableName="players" referencedColumnNames="id"
+                                 constraintName="fk_player_scores_players" />
+
+    </changeSet>
+</databaseChangeLog>

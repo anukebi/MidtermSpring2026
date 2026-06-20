@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,6 +26,7 @@ import lombok.experimental.Accessors;
 public class RoundEntity {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
 	@Column(name = "round_number", nullable = false)
@@ -34,7 +37,7 @@ public class RoundEntity {
 	private GameEntity gameEntity;
 
 	@ManyToOne
-	@JoinColumn(name = "winner_id", referencedColumnName = "id", nullable = false)
+	@JoinColumn(name = "winner_id", referencedColumnName = "id")
 	private PlayerEntity winner;
 
 	@Column(name = "start_time", nullable = false)
