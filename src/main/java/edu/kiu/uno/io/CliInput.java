@@ -6,14 +6,12 @@ import java.util.Scanner;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.rule.RulesValidator;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class CliInput {
 
   private final Scanner scanner;
-
-  public CliInput(Scanner scanner) {
-    this.scanner = scanner;
-  }
 
   public int askCardChoice(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     while (true) {

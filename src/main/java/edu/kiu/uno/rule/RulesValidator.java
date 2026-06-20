@@ -6,10 +6,10 @@ import java.util.Set;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class RulesValidator {
-
-  private RulesValidator() {}
 
   public static boolean isValid(Card card, Card upCard, CardColor calledColor) {
     return isValid(card, calledColor != null ? calledColor : upCard.color(), upCard.rank(), upCard.value());

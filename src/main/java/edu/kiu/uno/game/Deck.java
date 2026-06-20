@@ -10,18 +10,14 @@ import edu.kiu.uno.model.CardMapper;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class Deck {
 
-  private final List<Card> drawPile;
-  private final List<Card> discardPile;
+  private final List<Card> drawPile = new LinkedList<>();
+  private final List<Card> discardPile = new ArrayList<>();
   private final Random random;
-
-  public Deck(Random random) {
-    this.random = random;
-    this.drawPile =  new LinkedList<>();
-    this.discardPile = new ArrayList<>();
-  }
 
   public int size() {
     return drawPile.size();

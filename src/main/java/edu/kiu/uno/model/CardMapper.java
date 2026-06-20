@@ -3,10 +3,10 @@ package edu.kiu.uno.model;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class CardMapper {
-
-  private CardMapper() {}
 
   public static Card getCard(CardColor color, CardRank rank, Integer value) {
     var code = switch (rank) {

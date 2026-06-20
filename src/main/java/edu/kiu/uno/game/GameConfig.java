@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import lombok.Getter;
+
+@Getter
 public class GameConfig {
 
   private static final Function<GameConfig, List<BiFunction<String[], Integer, Integer>>> CONFIG_SETTERS = g -> List.of(
@@ -73,34 +76,6 @@ public class GameConfig {
 
   private boolean hasNextArg(String[] args, int i) {
     return i < args.length;
-  }
-
-  public int getBots() {
-    return bots;
-  }
-
-  public int getGames() {
-    return games;
-  }
-
-  public long getSeed() {
-    return seed;
-  }
-
-  public boolean isHuman() {
-    return human;
-  }
-
-  public boolean isQuiet() {
-    return quiet;
-  }
-
-  public boolean isSelfTest() {
-    return selfTest;
-  }
-
-  public boolean isHelp() {
-    return help;
   }
 
 }

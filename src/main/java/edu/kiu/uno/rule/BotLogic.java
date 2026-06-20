@@ -8,10 +8,10 @@ import java.util.Map;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class BotLogic {
-
-  private BotLogic() {}
 
   public static int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     if (pendingDrawAmount > 0) {

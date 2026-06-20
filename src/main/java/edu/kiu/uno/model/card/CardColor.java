@@ -1,5 +1,10 @@
 package edu.kiu.uno.model.card;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Getter
 public enum CardColor {
 
   RED("R"),
@@ -9,14 +14,6 @@ public enum CardColor {
   WILD("W");
 
   private final String code;
-
-  CardColor(String code) {
-    this.code = code;
-  }
-
-  public String getCode() {
-    return code;
-  }
 
   public static CardColor fromCode(String code) {
     for (CardColor color : values()) {

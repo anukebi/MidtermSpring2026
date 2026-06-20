@@ -8,7 +8,11 @@ import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.model.player.PlayerType;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class GameState {
 
   private final Random random;
@@ -46,14 +50,6 @@ public class GameState {
     pendingDrawAmount = 0;
   }
 
-  public int getPendingDraw() {
-    return pendingDraw;
-  }
-
-  public int getPendingDrawAmount() {
-    return pendingDrawAmount;
-  }
-
   public void startPendingDraw(int amount) {
     pendingDraw = amount;
     pendingDrawAmount = amount;
@@ -86,10 +82,6 @@ public class GameState {
     }
   }
 
-  public List<Player> getPlayers() {
-    return players;
-  }
-
   public Player getCurrentPlayer() {
     return players.get(currentPlayer);
   }
@@ -98,32 +90,12 @@ public class GameState {
     return currentPlayer;
   }
 
-  public GameDirection getDirection() {
-    return direction;
-  }
-
   public void reverseDirection() {
     this.direction = direction.reverse();
   }
 
   public void resetDirection() {
     this.direction = GameDirection.FORWARD;
-  }
-
-  public Card getUpCard() {
-    return upCard;
-  }
-
-  public void setUpCard(Card upCard) {
-    this.upCard = upCard;
-  }
-
-  public CardColor getCalledColor() {
-    return calledColor;
-  }
-
-  public void setCalledColor(CardColor calledColor) {
-    this.calledColor = calledColor;
   }
 
 }
