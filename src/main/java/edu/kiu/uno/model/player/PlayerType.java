@@ -1,4 +1,4 @@
-package uno.model.player;
+package edu.kiu.uno.model.player;
 
 public enum PlayerType {
 

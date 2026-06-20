@@ -1,15 +1,15 @@
-package uno.io;
-
-import uno.game.GameState;
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.player.Player;
+package edu.kiu.uno.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import edu.kiu.uno.game.GameState;
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.player.Player;
 
 public class CliOutput {
 

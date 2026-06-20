@@ -1,4 +1,4 @@
-package uno.game;
+package edu.kiu.uno.game;
 
 import java.util.List;
 import java.util.function.BiFunction;

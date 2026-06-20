@@ -1,11 +1,11 @@
-package uno.io;
-
-import uno.rule.RulesValidator;
-import uno.model.card.Card;
-import uno.model.card.CardColor;
+package edu.kiu.uno.io;
 
 import java.util.List;
 import java.util.Scanner;
+
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.rule.RulesValidator;
 
 public class CliInput {
 

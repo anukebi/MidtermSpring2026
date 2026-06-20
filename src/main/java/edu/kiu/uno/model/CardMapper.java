@@ -1,8 +1,8 @@
-package uno.model;
+package edu.kiu.uno.model;
 
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.card.CardRank;
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
 
 public class CardMapper {
 

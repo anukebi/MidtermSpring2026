@@ -1,9 +1,9 @@
-package uno.model.player;
-
-import uno.model.card.Card;
+package edu.kiu.uno.model.player;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.kiu.uno.model.card.Card;
 
 public final class Player {
 

@@ -1,11 +1,13 @@
-import uno.rule.BotLogic;
-import uno.model.CardMapper;
-import uno.game.Deck;
-import uno.game.GameState;
-import uno.rule.RulesValidator;
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.card.CardRank;
+package edu.kiu.uno;
+
+import edu.kiu.uno.rule.BotLogic;
+import edu.kiu.uno.model.CardMapper;
+import edu.kiu.uno.game.Deck;
+import edu.kiu.uno.game.GameState;
+import edu.kiu.uno.rule.RulesValidator;
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
 
 import java.util.List;
 import java.util.Random;

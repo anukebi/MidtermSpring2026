@@ -1,11 +1,11 @@
-package uno.rule;
-
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.card.CardRank;
+package edu.kiu.uno.rule;
 
 import java.util.Objects;
 import java.util.Set;
+
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
 
 public final class RulesValidator {
 

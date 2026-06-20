@@ -1,4 +1,4 @@
-package uno.model.card;
+package edu.kiu.uno.model.card;
 
 public enum CardColor {
 

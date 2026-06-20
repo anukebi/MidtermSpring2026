@@ -1,13 +1,13 @@
-package uno.rule;
-
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.card.CardRank;
+package edu.kiu.uno.rule;
 
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
 
 public final class BotLogic {
 

@@ -1,4 +1,4 @@
-package uno.game;
+package edu.kiu.uno.game;
 
 public enum GameDirection {
 

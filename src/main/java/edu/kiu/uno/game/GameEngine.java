@@ -1,15 +1,15 @@
-package uno.game;
-
-import uno.rule.BotLogic;
-import uno.io.CliInput;
-import uno.io.CliOutput;
-import uno.rule.RulesValidator;
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.player.Player;
-import uno.model.player.PlayerType;
+package edu.kiu.uno.game;
 
 import java.util.stream.IntStream;
+
+import edu.kiu.uno.io.CliInput;
+import edu.kiu.uno.io.CliOutput;
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.player.Player;
+import edu.kiu.uno.model.player.PlayerType;
+import edu.kiu.uno.rule.BotLogic;
+import edu.kiu.uno.rule.RulesValidator;
 
 public class GameEngine {
 

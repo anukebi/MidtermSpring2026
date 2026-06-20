@@ -1,13 +1,13 @@
-package uno.game;
-
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.player.Player;
-import uno.model.player.PlayerType;
+package edu.kiu.uno.game;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.player.Player;
+import edu.kiu.uno.model.player.PlayerType;
 
 public class GameState {
 

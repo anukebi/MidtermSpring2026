@@ -1,15 +1,15 @@
-package uno.game;
-
-import uno.model.CardMapper;
-import uno.model.card.Card;
-import uno.model.card.CardColor;
-import uno.model.card.CardRank;
+package edu.kiu.uno.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+
+import edu.kiu.uno.model.CardMapper;
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
 
 public class Deck {
 
