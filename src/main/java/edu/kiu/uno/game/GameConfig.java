@@ -26,7 +26,6 @@ public class GameConfig {
     var setters = CONFIG_SETTERS.apply(this);
     for (int i = 0; i < args.length; i++) {
       for (var setter : setters) {
-        System.err.println("GameConfig:: Processing argument: " + args[i] + " with setter: " + setter + " at index: " + i);
         var newIndex = setter.apply(args, i);
         if (newIndex != i) {
           break;
