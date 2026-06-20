@@ -10,16 +10,34 @@ The code is written as plausible feature-grown Java: almost everything lives in 
 scripts/compile.sh
 ```
 
+or
+
+```bash
+./mvnw clean compile
+```
+
 ## Run Bot Games
 
 ```bash
 scripts/run.sh --bots 3 --games 5 --quiet
 ```
 
+or
+
+```bash
+./mvnw -q clean compile exec:java -Dexec.args="--bots 3 --games 5 --quiet"
+```
+
 ## Run Interactive Game
 
 ```bash
 scripts/run.sh --human --bots 2 --games 1
+```
+
+or
+
+```bash
+./mvnw -q clean compile exec:java -Dexec.args="--human --bots 2 --games 1"
 ```
 
 Card input examples:
@@ -42,6 +60,32 @@ When a +2 or W4 is played, the next player may play a matching draw card to pass
 
 ```bash
 scripts/test.sh
+```
+
+or
+
+```bash
+./mvnw clean test
+```
+
+## Packaging
+
+```bash
+scripts/package.sh
+```
+
+or
+
+```bash
+./mvnw clean package -DskipTests
+```
+
+## Docker
+```bash
+# Build the Docker image
+docker build -t uno .
+# Run the Docker container
+docker run --rm uno --bots 2 --games 1
 ```
 
 ## Submission
