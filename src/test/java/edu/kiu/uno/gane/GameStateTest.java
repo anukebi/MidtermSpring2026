@@ -6,7 +6,7 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import edu.kiu.uno.game.GameState;
+import edu.kiu.uno.service.game.GameState;
 
 public class GameStateTest {
 
