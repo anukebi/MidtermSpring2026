@@ -12,6 +12,7 @@ import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.model.player.PlayerType;
 import edu.kiu.uno.service.BotLogicService;
+import edu.kiu.uno.service.game.GamePersistenceService.PersistenceContext;
 import edu.kiu.uno.util.RulesValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,23 +29,39 @@ public class GameEngine {
   private final CliInputService cliInputService;
   private final RulesValidator rulesValidator;
   private final BotLogicService botLogicService;
+  private final GamePersistenceService persistenceService;
 
-  public void playGame(int game) {
-    log.info("playGame:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
-    cliOutputService.printGameHeader(game);
+  public void playGame() {
+    log.info("run:: Starting UNO with config: {}", properties);
+    var ctx = new PersistenceContext();
+    persistenceService.startGame(ctx);
+    for (int g = 1; g <= properties.getGames(); g++) {
+      log.info("run:: Starting game {} of {}", g, properties.getGames());
+      playRound(ctx, g);
+    }
+    persistenceService.endGame(ctx);
+    log.info("run:: All games completed. Final scores: {}", state.getPlayers().stream().map(p -> p.getName() + ": " + p.getTotalScore()).toList());
+  }
+
+  public void playRound(PersistenceContext ctx, int round) {
+    log.info("playRound:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
+    persistenceService.startRound(ctx, round);
+    cliOutputService.printGameHeader(round);
     deck.initializeDeck();
     state.initializeState();
     distributeCards();
 
     for (int guard = 0; guard < properties.getTurnSafetyLimit(); guard++) {
-      log.debug("playGame:: Starting turn {} with current player {} and up card {}", guard, state.getCurrentPlayer().getName(), state.getUpCard());
+      log.debug("playRound:: Starting turn {} with current player {} and up card {}", guard, state.getCurrentPlayer().getName(), state.getUpCard());
       if (playTurn()) {
-        log.info("playGame:: Player {} won the game in turn {}, ending game", state.getCurrentPlayer().getName(), guard);
+        log.info("playRound:: Player {} won the game in turn {}, ending game", state.getCurrentPlayer().getName(), guard);
+        persistenceService.endRound(ctx, false);
         return;
       }
     }
 
-    log.info("playGame:: Reached turn safety limit of {}, ending game to prevent infinite loop", properties.getTurnSafetyLimit());
+    log.info("playRound:: Reached turn safety limit of {}, ending game to prevent infinite loop", properties.getTurnSafetyLimit());
+    persistenceService.endRound(ctx, true);
     cliOutputService.printSafetyLimit();
   }
 

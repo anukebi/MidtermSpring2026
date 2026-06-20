@@ -15,6 +15,7 @@ public final class Player {
   private final PlayerType type;
   private final List<Card> hand = new ArrayList<>();
   private int score = 0;
+  private int totalScore = 0;
 
   public void clearHand() {
     hand.clear();
@@ -26,6 +27,7 @@ public final class Player {
 
   public void addScore(int score) {
     this.score += score;
+    this.totalScore += score;
   }
 
   public void resetScore() {

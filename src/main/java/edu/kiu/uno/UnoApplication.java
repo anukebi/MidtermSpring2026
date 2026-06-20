@@ -3,7 +3,6 @@ package edu.kiu.uno;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 
 import edu.kiu.uno.config.properties.GameProperties;
 import edu.kiu.uno.service.game.GameEngine;
@@ -13,7 +12,7 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequiredArgsConstructor
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@SpringBootApplication
 public class UnoApplication implements CommandLineRunner {
 
     private final GameProperties gameProperties;
@@ -38,12 +37,7 @@ public class UnoApplication implements CommandLineRunner {
             return;
         }
 
-        log.info("run:: Starting UNO with config: {}", gameProperties);
-        for (int g = 1; g <= gameProperties.getGames(); g++) {
-            log.info("run:: Starting game {} of {}", g, gameProperties.getGames());
-            gameEngine.playGame(g);
-        }
-        log.info("run:: All games completed. Final scores: {}", gameState.getPlayers().stream().map(p -> p.getName() + ": " + p.getScore()).toList());
+        gameEngine.playGame();
         System.exit(0);
     }
 

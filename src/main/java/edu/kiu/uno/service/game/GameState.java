@@ -45,6 +45,7 @@ public class GameState {
   public void initializeState() {
     log.info("initializeState:: Initializing game state for new game with {} players", players.size());
     players.forEach(Player::clearHand);
+    players.forEach(Player::resetScore);
     currentPlayer = random.nextInt(players.size());
     direction = GameDirection.FORWARD;
     upCard = null;

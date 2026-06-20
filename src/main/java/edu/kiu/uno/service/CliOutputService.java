@@ -25,7 +25,7 @@ public class CliOutputService {
   public void printFinalScores() {
     System.out.println("\nFinal scores:");
     state.getPlayers()
-        .forEach(player -> System.out.println(player.getName() + ": " + player.getScore()));
+        .forEach(player -> System.out.println(player.getName() + ": " + player.getTotalScore()));
   }
 
   public void printGameHeader(int gameNumber) {
