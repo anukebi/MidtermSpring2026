@@ -10,7 +10,11 @@ import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.model.player.PlayerType;
 import edu.kiu.uno.rule.BotLogic;
 import edu.kiu.uno.rule.RulesValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
+@RequiredArgsConstructor
 public class GameEngine {
 
   private static final int TURN_SAFETY_LIMIT = 3000;
@@ -20,27 +24,26 @@ public class GameEngine {
   private final CliOutput cliOutput;
   private final CliInput cliInput;
 
-  public GameEngine(GameState state, Deck deck, CliOutput cliOutput, CliInput cliInput) {
-    this.state = state;
-    this.deck = deck;
-    this.cliOutput = cliOutput;
-    this.cliInput = cliInput;
-  }
-
   public void playGame() {
+    log.info("playGame:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
     deck.initializeDeck();
     state.initializeState();
     distributeCards();
 
     for (int guard = 0; guard < TURN_SAFETY_LIMIT; guard++) {
+      log.debug("playGame:: Starting turn {} with current player {} and up card {}", guard, state.getCurrentPlayer().getName(), state.getUpCard());
       if (playTurn()) {
+        log.info("playGame:: Player {} won the game in turn {}, ending game", state.getCurrentPlayer().getName(), guard);
         return;
       }
     }
+
+    log.info("playGame:: Reached turn safety limit of {}, ending game to prevent infinite loop", TURN_SAFETY_LIMIT);
     cliOutput.printSafetyLimit();
   }
 
   private void distributeCards() {
+    log.info("distributeCards:: Distributing cards to players and setting up initial card");
     // Give each player 7 cards
     state.getPlayers().forEach(player -> IntStream.range(0, 7)
         .forEach(i -> player.addCard(deck.draw())));
@@ -55,6 +58,7 @@ public class GameEngine {
 
   private boolean playTurn() {
     var player = state.getCurrentPlayer();
+    log.info("playTurn:: Starting turn for player {}", player.getName());
     cliOutput.printTurn(player, state.getUpCard(), state.getCalledColor());
     if (state.getPendingDraw() > 0) {
       cliOutput.printPendingDraw(player, state.getPendingDraw());
@@ -102,6 +106,7 @@ public class GameEngine {
   private boolean executePlay(Player player, int chosen) {
     var hand = player.getHand();
     if (chosen >= hand.size()) {
+      log.warn("executePlay:: Player {} selected invalid index {}, hand size is {}", player.getName(), chosen, hand.size());
       cliOutput.printInvalidIndexPenalty(player);
       hand.add(deck.draw());
       state.advancePlayer();
@@ -109,6 +114,8 @@ public class GameEngine {
     }
 
     var card = hand.get(chosen);
+    log.debug("executePlay:: Player {} chose card {} with pending draw {}", player.getName(), card, state.getPendingDraw());
+
     if (state.getPendingDraw() > 0) {
       if (!RulesValidator.canStack(card, state.getPendingDrawAmount())) {
         cliOutput.printIllegalPlayPenalty(player, card);
@@ -159,6 +166,7 @@ public class GameEngine {
   }
 
   private void applyCardEffect(Player player, Card card) {
+    log.debug("applyCardEffect:: Applying effect of card {} for player {}", card, player.getName());
     switch (card.rank()) {
       case SKIP -> {
         state.advancePlayer();

@@ -10,7 +10,9 @@ import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.model.player.PlayerType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Getter
 @Setter
 public class GameState {
@@ -41,6 +43,7 @@ public class GameState {
   }
 
   public void initializeState() {
+    log.info("initializeState:: Initializing game state for new game with {} players", players.size());
     players.forEach(Player::clearHand);
     currentPlayer = random.nextInt(players.size());
     direction = GameDirection.FORWARD;

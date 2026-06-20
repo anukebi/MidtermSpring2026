@@ -11,7 +11,9 @@ import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @RequiredArgsConstructor
 public class Deck {
 
@@ -24,6 +26,7 @@ public class Deck {
   }
 
   public void initializeDeck() {
+    log.info("initializeDeck:: Initializing deck with draw pile {} and discard pile {}", drawPile.size(), discardPile.size());
     drawPile.clear();
     discardPile.clear();
 
@@ -49,6 +52,7 @@ public class Deck {
   }
 
   public void discard(Card card) {
+    log.info("discard:: Discarding card {} to discard pile", card);
     discardPile.add(card);
   }
 
@@ -59,9 +63,12 @@ public class Deck {
       Collections.shuffle(drawPile, random);
     }
 
-    return drawPile.isEmpty()
+    var card = drawPile.isEmpty()
         ? CardMapper.getCard(CardColor.WILD, CardRank.CHANGE, null)
         : drawPile.removeFirst();
+
+    log.info("draw:: Drew card {} from draw pile", card);
+    return card;
   }
 
   private void addCard(CardColor color, CardRank rank, int times) {

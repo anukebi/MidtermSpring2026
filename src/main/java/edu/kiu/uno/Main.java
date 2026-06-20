@@ -9,7 +9,9 @@ import edu.kiu.uno.game.GameEngine;
 import edu.kiu.uno.game.GameState;
 import edu.kiu.uno.io.CliInput;
 import edu.kiu.uno.io.CliOutput;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class Main {
 
     public static void main(String[] args) {
@@ -33,11 +35,14 @@ public class Main {
         var deck = new Deck(random);
         var engine = new GameEngine(state, deck, cliOutput, cliInput);
 
+        log.info("main:: Starting UNO with config: {}", config);
         for (int g = 1; g <= config.getGames(); g++) {
+            log.info("main:: Starting game {} of {}", g, config.getGames());
             cliOutput.printGameHeader(g);
             engine.playGame();
         }
 
+        log.info("main:: All games completed. Final scores: {}", state.getPlayers().stream().map(p -> p.getName() + ": " + p.getScore()).toList());
         cliOutput.printFinalScores(state);
     }
 

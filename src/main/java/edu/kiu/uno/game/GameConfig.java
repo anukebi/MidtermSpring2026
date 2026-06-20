@@ -5,8 +5,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class GameConfig {
 
   private static final Function<GameConfig, List<BiFunction<String[], Integer, Integer>>> CONFIG_SETTERS = g -> List.of(
