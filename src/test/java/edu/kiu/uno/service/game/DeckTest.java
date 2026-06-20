@@ -1,4 +1,4 @@
-package edu.kiu.uno.gane;
+package edu.kiu.uno.service.game;
 
 import static edu.kiu.uno.TestUtils.check;
 

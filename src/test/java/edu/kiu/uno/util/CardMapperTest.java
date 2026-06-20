@@ -1,4 +1,4 @@
-package edu.kiu.uno.model;
+package edu.kiu.uno.util;
 
 import static edu.kiu.uno.TestUtils.check;
 
@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
-import edu.kiu.uno.util.CardMapper;
-import edu.kiu.uno.util.RulesValidator;
 
 public class CardMapperTest {
 	

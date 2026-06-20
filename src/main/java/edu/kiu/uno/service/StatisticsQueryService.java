@@ -19,9 +19,9 @@ public class StatisticsQueryService {
 		MOST_ACTIVE
 	}
 
-	public void query(String query) {
+	public String query(String query) {
 		var queryType = QueryType.valueOf(query.toUpperCase().replace(" ", "_"));
-		cliOutputService.printQueryResult(queryType.name(), switch (queryType) {
+		return cliOutputService.printQueryResult(queryType.name(), switch (queryType) {
 			case QueryType.RECENT_GAMES -> gameService.getAllGames();
 			case QueryType.PLAYER_SCORES -> playerScoreService.getPlayerScores();
 			case QueryType.PLAYER_WINS -> roundService.getPlayerWinCounts();

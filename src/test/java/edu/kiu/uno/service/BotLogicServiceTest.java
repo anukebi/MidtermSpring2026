@@ -1,4 +1,4 @@
-package edu.kiu.uno.rule;
+package edu.kiu.uno.service;
 
 import static edu.kiu.uno.TestUtils.check;
 
@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.kiu.uno.service.BotLogicService;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.util.CardMapper;

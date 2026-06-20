@@ -76,9 +76,10 @@ public class CliOutputService {
         .forEach(player -> System.out.println(player.getName() + ": " + player.getTotalScore()));
   }
 
-  public <T> void printQueryResult(String query, T result) {
+  public <T> String printQueryResult(String query, T result) {
     out.println("Query: " + query);
     out.println("Result: " + result);
+    return result.toString();
   }
 
   public static String formatHand(List<Card> cards) {

@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +21,7 @@ public class GameProperties {
   private boolean quiet = false;
   private boolean help = false;
   private String query = null;
+  private boolean cliOnly = true;
   private long turnSafetyLimit = 3000L;
 
 }
