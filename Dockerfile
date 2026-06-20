@@ -18,6 +18,6 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/target/uno.jar uno.jar
+COPY --from=builder /app/target/uno-0.0.1-SNAPSHOT.jar uno.jar
 
 ENTRYPOINT ["java", "-jar", "uno.jar"]
