@@ -57,6 +57,10 @@ public class Deck {
   }
 
   public Card draw() {
+    return draw(true);
+  }
+
+  public Card draw(boolean silent) {
     if (drawPile.isEmpty()) {
       drawPile.addAll(discardPile);
       discardPile.clear();
@@ -67,7 +71,9 @@ public class Deck {
         ? CardMapper.getCard(CardColor.WILD, CardRank.CHANGE, null)
         : drawPile.removeFirst();
 
-    log.info("draw:: Drew card {} from draw pile", card);
+    if (!silent) {
+      log.info("draw:: Drew card {} from draw pile", card);
+    }
     return card;
   }
 
