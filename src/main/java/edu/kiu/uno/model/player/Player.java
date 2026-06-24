@@ -22,8 +22,21 @@ public final class Player {
     score = 0;
   }
 
-  public void addCard(Card card) {
+  public int cardCount() {
+    return hand.size();
+  }
+
+  public Card getCard(int index) {
+    return hand.get(index);
+  }
+
+  public Card addCard(Card card) {
     hand.add(card);
+    return card;
+  }
+
+  public void removeCard(int index) {
+    hand.remove(index);
   }
 
   public void addScore(int score) {

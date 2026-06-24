@@ -5,6 +5,7 @@ import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.card.CardRank;
 import edu.kiu.uno.model.card.Deck;
+import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.util.CardMapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -56,12 +57,15 @@ public class DeckService {
     log.info("draw:: Drew card {} from draw pile", card);
     return card;
   }
+
+  public Card draw(Player player) {
+    return player.addCard(draw());
+  }
   
   public void distribute(GameState state) {
     log.info("distribute:: Distributing deck cards to players and setting up initial card");
     // Give each player 7 cards
-    state.getPlayers().forEach(player -> IntStream.range(0, deckProperties.getPlayerCards())
-        .forEach(i -> player.addCard(draw())));
+    state.getPlayers().forEach(player -> IntStream.range(0, deckProperties.getPlayerCards()).forEach(i -> draw(player)));
 
     // Put down initial non-wild card
     var card = draw();
