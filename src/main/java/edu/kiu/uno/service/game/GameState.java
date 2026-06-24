@@ -17,8 +17,8 @@ import lombok.extern.log4j.Log4j2;
 @Setter
 public class GameState {
 
-  private final Random random;
   private final List<Player> players;
+  private final Random random;
   private int currentPlayer;
   private GameDirection direction;
   private Card upCard;
@@ -29,10 +29,6 @@ public class GameState {
   public GameState(Random random, int bots, boolean human) {
     this.players = new ArrayList<>();
     this.random = random;
-    this.currentPlayer = 0;
-    this.direction = GameDirection.FORWARD;
-    this.upCard = null;
-    this.calledColor = null;
 
     if (human) {
       players.add(new Player("You", PlayerType.HUMAN));
@@ -40,12 +36,13 @@ public class GameState {
     for (int i = 1; i <= bots; i++) {
       players.add(new Player("Bot" + i, PlayerType.BOT));
     }
+
+    this.initializeState();
   }
 
   public void initializeState() {
     log.info("initializeState:: Initializing game state for new game with {} players", players.size());
     players.forEach(Player::clearHand);
-    players.forEach(Player::resetScore);
     currentPlayer = random.nextInt(players.size());
     direction = GameDirection.FORWARD;
     upCard = null;
@@ -72,10 +69,6 @@ public class GameState {
     return players.size();
   }
 
-  public boolean isHuman(int playerIndex) {
-    return players.get(playerIndex).getType() == PlayerType.HUMAN;
-  }
-
   public void advancePlayer() {
     currentPlayer += direction.getValue();
     if (currentPlayer >= players.size()) {
@@ -96,10 +89,6 @@ public class GameState {
 
   public void reverseDirection() {
     this.direction = direction.reverse();
-  }
-
-  public void resetDirection() {
-    this.direction = GameDirection.FORWARD;
   }
 
 }

@@ -8,3 +8,14 @@ spring:
       driver-class-name: org.postgresql.Driver
   liquibase:
       change-log: classpath:db/changelog/db.changelog-master.xml
+
+game:
+  deck:
+    zero: 1
+    number: 2
+    skip: 2
+    reverse: 2
+    draw-two: 2
+    wild: 4
+    wild-draw-four: 4
+    player-cards: 7

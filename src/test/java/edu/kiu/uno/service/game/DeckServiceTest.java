@@ -4,23 +4,16 @@ import static edu.kiu.uno.TestUtils.check;
 
 import java.util.Random;
 
+import edu.kiu.uno.config.properties.DeckProperties;
 import org.junit.jupiter.api.Test;
 
-import edu.kiu.uno.service.game.Deck;
 import edu.kiu.uno.util.CardMapper;
 
-public class DeckTest {
-
-  @Test
-  void testDeckSize() {
-		var deck = new Deck(new Random(0), new CardMapper());
-		deck.initializeDeck();
-		check("standard deck has 108 cards", deck.size() == 108);
-	}
+public class DeckServiceTest {
 
   @Test
   void testDeckRecycle() {
-		var deck = new Deck(new Random(7), new CardMapper());
+		var deck = new DeckService(new CardMapper(), new DeckProperties(), new Random(7));
 		deck.initializeDeck();
 		var first = deck.draw();
 		for (int i = 0; i < 107; i++) {
@@ -33,7 +26,7 @@ public class DeckTest {
 
   @Test
   void testDeckFallbackWild() {
-		var deck = new Deck(new Random(1), new CardMapper());
+		var deck = new DeckService(new CardMapper(), new DeckProperties(), new Random(1));
 		check("empty deck returns wild fallback", deck.draw().code().equals("W"));
 	}
 

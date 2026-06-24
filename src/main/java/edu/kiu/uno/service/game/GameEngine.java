@@ -1,7 +1,5 @@
 package edu.kiu.uno.service.game;
 
-import java.util.stream.IntStream;
-
 import edu.kiu.uno.service.controller.input.PlayerInputServiceProvider;
 import edu.kiu.uno.service.controller.output.PlayerOutputService;
 import edu.kiu.uno.service.game.effects.CardEffectStrategyProvider;
@@ -9,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import edu.kiu.uno.config.properties.GameProperties;
 import edu.kiu.uno.model.card.Card;
-import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.service.game.GamePersistenceOrchestrator.PersistenceContext;
 import edu.kiu.uno.util.RulesValidator;
@@ -23,7 +20,7 @@ public class GameEngine {
   
   private final GameProperties properties;
   private final GameState state;
-  private final Deck deck;
+  private final DeckService deckService;
   private final PlayerOutputService outputService;
   private final PlayerInputServiceProvider inputServiceProvider;
   private final CardEffectStrategyProvider cardEffectStrategyProvider;
@@ -45,11 +42,12 @@ public class GameEngine {
 
   public void playRound(PersistenceContext ctx, int round) {
     log.info("playRound:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
-    persistenceOrchestrator.startRound(ctx, round);
     outputService.displayGameHeader(round);
-    deck.initializeDeck();
+
+    persistenceOrchestrator.startRound(ctx, round);
+    deckService.initializeDeck();
+    deckService.distribute(state);
     state.initializeState();
-    distributeCards();
 
     for (int guard = 0; guard < properties.getTurnSafetyLimit(); guard++) {
       log.debug("playRound:: Starting turn {} with current player {} and up card {}", guard, state.getCurrentPlayer().getName(), state.getUpCard());
@@ -65,20 +63,6 @@ public class GameEngine {
     outputService.displaySafetyLimit();
   }
 
-  private void distributeCards() {
-    log.info("distributeCards:: Distributing cards to players and setting up initial card");
-    // Give each player 7 cards
-    state.getPlayers().forEach(player -> IntStream.range(0, 7)
-        .forEach(i -> player.addCard(deck.draw())));
-
-    // Put down initial non-wild card
-    state.setUpCard(deck.draw());
-    while (state.getUpCard().color() == CardColor.WILD) {
-      deck.discard(state.getUpCard());
-      state.setUpCard(deck.draw());
-    }
-  }
-
   private boolean playTurn() {
     var player = state.getCurrentPlayer();
     log.info("playTurn:: Starting turn for player {}", player.getName());
@@ -91,7 +75,6 @@ public class GameEngine {
     if (chosen == -1) {
       if (state.getPendingDraw() > 0) {
         resolvePendingDraw(player);
-        state.clearPendingDraw();
       }
       state.advancePlayer();
       return false;
@@ -105,14 +88,12 @@ public class GameEngine {
     int chosen = inputServiceProvider.get(player).getCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
 
     if (chosen == -1 && state.getPendingDraw() == 0) {
-      var drawn = deck.draw();
+      var drawn = deckService.draw();
       player.addCard(drawn);
       outputService.displayDraw(player, drawn);
 
-      if (rulesValidator.isValid(drawn, state.getUpCard(), state.getCalledColor())) {
-        if (inputServiceProvider.get(player).confirmDrawnCard(drawn)) {
-          chosen = player.getHand().size() - 1;
-        }
+      if (rulesValidator.isValid(drawn, state.getUpCard(), state.getCalledColor()) && inputServiceProvider.get(player).confirmDrawnCard(drawn)) {
+        chosen = player.getHand().size() - 1;
       }
     }
 
@@ -124,7 +105,7 @@ public class GameEngine {
     if (chosen >= hand.size()) {
       log.warn("executePlay:: Player {} selected invalid index {}, hand size is {}", player.getName(), chosen, hand.size());
       outputService.displayInvalidIndexPenalty(player);
-      hand.add(deck.draw());
+      hand.add(deckService.draw());
       state.advancePlayer();
       return false;
     }
@@ -135,19 +116,19 @@ public class GameEngine {
     if (state.getPendingDraw() > 0) {
       if (!rulesValidator.canStack(card, state.getPendingDrawAmount())) {
         outputService.displayIllegalPlayPenalty(player, card);
-        hand.add(deck.draw());
+        hand.add(deckService.draw());
         state.advancePlayer();
         return false;
       }
     } else if (!rulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
       outputService.displayIllegalPlayPenalty(player, card);
-      hand.add(deck.draw());
+      hand.add(deckService.draw());
       state.advancePlayer();
       return false;
     }
 
     hand.remove(chosen);
-    deck.discard(state.getUpCard());
+    deckService.discard(state.getUpCard());
     state.setUpCard(card);
     state.setCalledColor(null);
     outputService.displayPlay(player, card);
@@ -185,8 +166,9 @@ public class GameEngine {
   private void resolvePendingDraw(Player player) {
     int count = state.getPendingDraw();
     for (int i = 0; i < count; i++) {
-      player.addCard(deck.draw());
+      player.addCard(deckService.draw());
     }
+    state.clearPendingDraw();
     outputService.displayDraws(player, count);
   }
 

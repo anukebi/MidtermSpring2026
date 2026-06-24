@@ -19,6 +19,7 @@ public final class Player {
 
   public void clearHand() {
     hand.clear();
+    score = 0;
   }
 
   public void addCard(Card card) {
@@ -28,10 +29,6 @@ public final class Player {
   public void addScore(int score) {
     this.score += score;
     this.totalScore += score;
-  }
-
-  public void resetScore() {
-    this.score = 0;
   }
 
 }
