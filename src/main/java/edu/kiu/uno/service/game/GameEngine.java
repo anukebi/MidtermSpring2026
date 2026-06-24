@@ -1,18 +1,18 @@
 package edu.kiu.uno.service.game;
 
+import java.util.List;
 import java.util.stream.IntStream;
 
+import edu.kiu.uno.service.controller.input.PlayerInputService;
+import edu.kiu.uno.service.controller.output.PlayerOutputService;
 import org.springframework.stereotype.Service;
 
 import edu.kiu.uno.config.properties.GameProperties;
-import edu.kiu.uno.service.CliInputService;
-import edu.kiu.uno.service.CliOutputService;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
 import edu.kiu.uno.model.player.PlayerType;
-import edu.kiu.uno.service.BotLogicService;
-import edu.kiu.uno.service.game.GamePersistenceService.PersistenceContext;
+import edu.kiu.uno.service.game.GamePersistenceOrchestrator.PersistenceContext;
 import edu.kiu.uno.util.RulesValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,29 +25,28 @@ public class GameEngine {
   private final GameProperties properties;
   private final GameState state;
   private final Deck deck;
-  private final CliOutputService cliOutputService;
-  private final CliInputService cliInputService;
+  private final PlayerOutputService playerOutputService;
+  private final List<PlayerInputService> playerInputServices;
   private final RulesValidator rulesValidator;
-  private final BotLogicService botLogicService;
-  private final GamePersistenceService persistenceService;
+  private final GamePersistenceOrchestrator persistenceOrchestrator;
 
   public void playGame() {
     log.info("run:: Starting UNO with config: {}", properties);
     var ctx = new PersistenceContext();
-    persistenceService.startGame(ctx);
+    persistenceOrchestrator.startGame(ctx);
     for (int g = 1; g <= properties.getGames(); g++) {
       log.info("run:: Starting game {} of {}", g, properties.getGames());
       playRound(ctx, g);
     }
-    persistenceService.endGame(ctx);
+    persistenceOrchestrator.endGame(ctx);
     log.info("run:: All games completed. Final scores: {}", state.getPlayers().stream().map(p -> p.getName() + ": " + p.getTotalScore()).toList());
-    cliOutputService.printFinalScores();
+    playerOutputService.displayFinalScores();
   }
 
   public void playRound(PersistenceContext ctx, int round) {
     log.info("playRound:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
-    persistenceService.startRound(ctx, round);
-    cliOutputService.printGameHeader(round);
+    persistenceOrchestrator.startRound(ctx, round);
+    playerOutputService.displayGameHeader(round);
     deck.initializeDeck();
     state.initializeState();
     distributeCards();
@@ -56,14 +55,14 @@ public class GameEngine {
       log.debug("playRound:: Starting turn {} with current player {} and up card {}", guard, state.getCurrentPlayer().getName(), state.getUpCard());
       if (playTurn()) {
         log.info("playRound:: Player {} won the game in turn {}, ending game", state.getCurrentPlayer().getName(), guard);
-        persistenceService.endRound(ctx, false);
+        persistenceOrchestrator.endRound(ctx, false);
         return;
       }
     }
 
     log.info("playRound:: Reached turn safety limit of {}, ending game to prevent infinite loop", properties.getTurnSafetyLimit());
-    persistenceService.endRound(ctx, true);
-    cliOutputService.printSafetyLimit();
+    persistenceOrchestrator.endRound(ctx, true);
+    playerOutputService.displaySafetyLimit();
   }
 
   private void distributeCards() {
@@ -83,9 +82,9 @@ public class GameEngine {
   private boolean playTurn() {
     var player = state.getCurrentPlayer();
     log.info("playTurn:: Starting turn for player {}", player.getName());
-    cliOutputService.printTurn(player, state.getUpCard(), state.getCalledColor());
+    playerOutputService.displayPlayerTurn(player, state.getUpCard(), state.getCalledColor());
     if (state.getPendingDraw() > 0) {
-      cliOutputService.printPendingDraw(player, state.getPendingDraw());
+      playerOutputService.displayPendingDraw(player, state.getPendingDraw());
     }
 
     int chosen = resolveCardChoice(player);
@@ -103,22 +102,17 @@ public class GameEngine {
 
   private int resolveCardChoice(Player player) {
     int pendingAmount = state.getPendingDrawAmount();
-    int chosen;
-    if (player.getType() == PlayerType.HUMAN) {
-      chosen = cliInputService.askCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
-    } else {
-      chosen = botLogicService.chooseCardIndex(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
-    }
+    int chosen = getPlayerInputService(player).getCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
 
     if (chosen == -1 && state.getPendingDraw() == 0) {
       var drawn = deck.draw();
       player.addCard(drawn);
-      cliOutputService.printDraw(player, drawn);
+      playerOutputService.displayDraw(player, drawn);
 
       if (rulesValidator.isValid(drawn, state.getUpCard(), state.getCalledColor())) {
         if (player.getType() != PlayerType.HUMAN) {
           chosen = player.getHand().size() - 1;
-        } else if (cliInputService.askPlayDrawnCard(drawn)) {
+        } else if (getPlayerInputService(player).confirmDrawnCard(drawn)) {
           chosen = player.getHand().size() - 1;
         }
       }
@@ -131,7 +125,7 @@ public class GameEngine {
     var hand = player.getHand();
     if (chosen >= hand.size()) {
       log.warn("executePlay:: Player {} selected invalid index {}, hand size is {}", player.getName(), chosen, hand.size());
-      cliOutputService.printInvalidIndexPenalty(player);
+      playerOutputService.displayInvalidIndexPenalty(player);
       hand.add(deck.draw());
       state.advancePlayer();
       return false;
@@ -142,13 +136,13 @@ public class GameEngine {
 
     if (state.getPendingDraw() > 0) {
       if (!rulesValidator.canStack(card, state.getPendingDrawAmount())) {
-        cliOutputService.printIllegalPlayPenalty(player, card);
+        playerOutputService.displayIllegalPlayPenalty(player, card);
         hand.add(deck.draw());
         state.advancePlayer();
         return false;
       }
     } else if (!rulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
-      cliOutputService.printIllegalPlayPenalty(player, card);
+      playerOutputService.displayIllegalPlayPenalty(player, card);
       hand.add(deck.draw());
       state.advancePlayer();
       return false;
@@ -158,16 +152,16 @@ public class GameEngine {
     deck.discard(state.getUpCard());
     state.setUpCard(card);
     state.setCalledColor(null);
-    cliOutputService.printPlay(player, card);
+    playerOutputService.displayPlay(player, card);
 
     if (hand.size() == 1) {
-      cliOutputService.printUno(player);
+      playerOutputService.displayUno(player);
     }
 
     if (hand.isEmpty()) {
       int points = scoreOpponents(state.getCurrentPlayerIndex());
       player.addScore(points);
-      cliOutputService.printWin(player, points);
+      playerOutputService.displayWin(player, points);
       return true;
     }
 
@@ -230,16 +224,19 @@ public class GameEngine {
     for (int i = 0; i < count; i++) {
       player.addCard(deck.draw());
     }
-    cliOutputService.printDraws(player, count);
+    playerOutputService.displayDraws(player, count);
   }
 
   private void triggerColorUpdate(Player player) {
-    if (player.getType() == PlayerType.HUMAN) {
-      state.setCalledColor(cliInputService.askColor());
-    } else {
-      state.setCalledColor(botLogicService.chooseColor(player.getHand()));
-    }
-    cliOutputService.printCalledColor(player, state.getCalledColor());
+    state.setCalledColor(getPlayerInputService(player).getCardColor(player.getHand()));
+    playerOutputService.displayCalledColor(player, state.getCalledColor());
+  }
+
+  private PlayerInputService getPlayerInputService(Player player) {
+    return playerInputServices.stream()
+        .filter(service -> service.supportsPlayer(player.getType()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("No input service found for player type: " + player.getType()));
   }
 
 }

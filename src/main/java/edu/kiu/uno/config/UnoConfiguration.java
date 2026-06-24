@@ -1,6 +1,5 @@
 package edu.kiu.uno.config;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Random;
 import java.util.Scanner;
@@ -30,8 +29,8 @@ public class UnoConfiguration {
 	}
 
 	@Bean
-	public PrintStream outputStream(GameProperties properties) {
-		return properties.isQuiet() ? new PrintStream(new ByteArrayOutputStream()) : System.out;
+	public PrintStream outputStream() {
+		return System.out;
 	}
 
 }

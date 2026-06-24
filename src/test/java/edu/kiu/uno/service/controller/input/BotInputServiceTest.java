@@ -1,4 +1,4 @@
-package edu.kiu.uno.service;
+package edu.kiu.uno.service.controller.input;
 
 import static edu.kiu.uno.TestUtils.check;
 
@@ -12,14 +12,14 @@ import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.util.CardMapper;
 import edu.kiu.uno.util.RulesValidator;
 
-public class BotLogicServiceTest {
+public class BotInputServiceTest {
 	
-	private BotLogicService botLogicService;
+	private BotInputService botInputService;
 	private CardMapper cardMapper;
 
 	@BeforeEach
 	void setup() {
-		botLogicService = new BotLogicService(new RulesValidator());
+		botInputService = new BotInputService(new RulesValidator());
 		cardMapper = new CardMapper();
 	}
 
@@ -30,30 +30,30 @@ public class BotLogicServiceTest {
 				cardMapper.getCard("R4"),
 				cardMapper.getCard("W"));
 		check("bot prefers matching number over wild",
-				botLogicService.chooseCardIndex(hand, cardMapper.getCard("R9"), null, 0) == 1);
+				botInputService.getCardChoice(hand, cardMapper.getCard("R9"), null, 0) == 1);
 
 		List<Card> hand2 = List.of(
 				cardMapper.getCard("R1"),
 				cardMapper.getCard("R+2"),
 				cardMapper.getCard("R5"));
 		check("bot prefers draw two when legal",
-				botLogicService.chooseCardIndex(hand2, cardMapper.getCard("G+2"), null, 0) == 1);
+				botInputService.getCardChoice(hand2, cardMapper.getCard("G+2"), null, 0) == 1);
 
 		List<Card> hand3 = List.of(
 				cardMapper.getCard("B1"),
 				cardMapper.getCard("YS"),
 				cardMapper.getCard("R5"));
 		check("bot prefers skip over number",
-				botLogicService.chooseCardIndex(hand3, cardMapper.getCard("RS"), null, 0) == 1);
+				botInputService.getCardChoice(hand3, cardMapper.getCard("RS"), null, 0) == 1);
 	}
 
   @Test
   void testDrawStacking() {
 		List<Card> hand = List.of(cardMapper.getCard("R+2"), cardMapper.getCard("R5"));
 		check("bot stacks +2 when pending +2",
-				botLogicService.chooseCardIndex(hand, cardMapper.getCard("G+2"), null, 2) == 0);
+				botInputService.getCardChoice(hand, cardMapper.getCard("G+2"), null, 2) == 0);
 		check("bot draws when no stack card",
-				botLogicService.chooseCardIndex(List.of(cardMapper.getCard("R5")), cardMapper.getCard("G+2"), null, 2) == -1);
+				botInputService.getCardChoice(List.of(cardMapper.getCard("R5")), cardMapper.getCard("G+2"), null, 2) == -1);
 	}
 
   @Test
@@ -62,7 +62,7 @@ public class BotLogicServiceTest {
 				cardMapper.getCard("B1"),
 				cardMapper.getCard("B2"),
 				cardMapper.getCard("R3"));
-		check("bot picks majority color", botLogicService.chooseColor(hand) == CardColor.BLUE);
+		check("bot picks majority color", botInputService.getCardColor(hand) == CardColor.BLUE);
 	}
 
 }

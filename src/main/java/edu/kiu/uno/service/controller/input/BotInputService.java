@@ -1,25 +1,26 @@
-package edu.kiu.uno.service;
+package edu.kiu.uno.service.controller.input;
+
+import edu.kiu.uno.model.card.Card;
+import edu.kiu.uno.model.card.CardColor;
+import edu.kiu.uno.model.card.CardRank;
+import edu.kiu.uno.model.player.PlayerType;
+import edu.kiu.uno.util.RulesValidator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-
-import edu.kiu.uno.model.card.Card;
-import edu.kiu.uno.model.card.CardColor;
-import edu.kiu.uno.model.card.CardRank;
-import edu.kiu.uno.util.RulesValidator;
-import lombok.RequiredArgsConstructor;
-
 @RequiredArgsConstructor
 @Service
-public class BotLogicService {
+public class BotInputService implements PlayerInputService {
 
   private final RulesValidator rulesValidator;
 
-  public int chooseCardIndex(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
+  @Override
+  public int getCardChoice(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
     if (pendingDrawAmount > 0) {
       for (int i = 0; i < hand.size(); i++) {
         if (rulesValidator.canStack(hand.get(i), pendingDrawAmount)) {
@@ -49,19 +50,8 @@ public class BotLogicService {
     return -1;
   }
 
-  private int findFirstLegal(List<Card> hand, Card upCard, CardColor calledColor, CardRank targetRank) {
-    for (int i = 0; i < hand.size(); i++) {
-      var card = hand.get(i);
-      if (card.rank().equals(targetRank)
-          && card.color() != CardColor.WILD
-          && rulesValidator.isValid(card, upCard, calledColor)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  public CardColor chooseColor(List<Card> hand) {
+  @Override
+  public CardColor getCardColor(List<Card> hand) {
     EnumMap<CardColor, Integer> colorCounts = new EnumMap<>(CardColor.class);
 
     for (var card : hand) {
@@ -75,4 +65,27 @@ public class BotLogicService {
         .map(Map.Entry::getKey)
         .orElseGet(() -> colorCounts.entrySet().iterator().next().getKey());
   }
+
+  @Override
+  public boolean confirmDrawnCard(Card drawn) {
+    return true;
+  }
+
+  @Override
+  public boolean supportsPlayer(PlayerType playerType) {
+    return playerType == PlayerType.BOT;
+  }
+
+  private int findFirstLegal(List<Card> hand, Card upCard, CardColor calledColor, CardRank targetRank) {
+    for (int i = 0; i < hand.size(); i++) {
+      var card = hand.get(i);
+      if (card.rank().equals(targetRank)
+          && card.color() != CardColor.WILD
+          && rulesValidator.isValid(card, upCard, calledColor)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
 }
