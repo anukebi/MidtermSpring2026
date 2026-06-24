@@ -10,16 +10,16 @@ import edu.kiu.uno.model.entity.PlayerEntity;
 import edu.kiu.uno.model.entity.PlayerScoreEntity;
 import edu.kiu.uno.model.entity.RoundEntity;
 import edu.kiu.uno.model.player.Player;
-import edu.kiu.uno.service.GameService;
-import edu.kiu.uno.service.PlayerScoreService;
-import edu.kiu.uno.service.PlayerService;
-import edu.kiu.uno.service.RoundService;
+import edu.kiu.uno.service.persistence.GameService;
+import edu.kiu.uno.service.persistence.PlayerScoreService;
+import edu.kiu.uno.service.persistence.PlayerService;
+import edu.kiu.uno.service.persistence.RoundService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class GamePersistenceService {
+public class GamePersistenceOrchestrator {
 
 	private final GameService gameService;
 	private final RoundService roundService;

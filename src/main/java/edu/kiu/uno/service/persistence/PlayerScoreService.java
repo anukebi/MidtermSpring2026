@@ -1,6 +1,5 @@
-package edu.kiu.uno.service;
+package edu.kiu.uno.service.persistence;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

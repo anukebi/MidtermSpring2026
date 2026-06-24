@@ -1,4 +1,4 @@
-package edu.kiu.uno.service;
+package edu.kiu.uno.service.persistence;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

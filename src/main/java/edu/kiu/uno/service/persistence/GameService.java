@@ -1,4 +1,4 @@
-package edu.kiu.uno.service;
+package edu.kiu.uno.service.persistence;
 
 import java.time.LocalDateTime;
 import java.util.List;
