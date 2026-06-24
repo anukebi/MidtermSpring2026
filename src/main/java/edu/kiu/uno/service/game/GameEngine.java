@@ -1,17 +1,16 @@
 package edu.kiu.uno.service.game;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
-import edu.kiu.uno.service.controller.input.PlayerInputService;
+import edu.kiu.uno.service.controller.input.PlayerInputServiceProvider;
 import edu.kiu.uno.service.controller.output.PlayerOutputService;
+import edu.kiu.uno.service.game.effects.CardEffectStrategyProvider;
 import org.springframework.stereotype.Service;
 
 import edu.kiu.uno.config.properties.GameProperties;
 import edu.kiu.uno.model.card.Card;
 import edu.kiu.uno.model.card.CardColor;
 import edu.kiu.uno.model.player.Player;
-import edu.kiu.uno.model.player.PlayerType;
 import edu.kiu.uno.service.game.GamePersistenceOrchestrator.PersistenceContext;
 import edu.kiu.uno.util.RulesValidator;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,9 @@ public class GameEngine {
   private final GameProperties properties;
   private final GameState state;
   private final Deck deck;
-  private final PlayerOutputService playerOutputService;
-  private final List<PlayerInputService> playerInputServices;
+  private final PlayerOutputService outputService;
+  private final PlayerInputServiceProvider inputServiceProvider;
+  private final CardEffectStrategyProvider cardEffectStrategyProvider;
   private final RulesValidator rulesValidator;
   private final GamePersistenceOrchestrator persistenceOrchestrator;
 
@@ -40,13 +40,13 @@ public class GameEngine {
     }
     persistenceOrchestrator.endGame(ctx);
     log.info("run:: All games completed. Final scores: {}", state.getPlayers().stream().map(p -> p.getName() + ": " + p.getTotalScore()).toList());
-    playerOutputService.displayFinalScores();
+    outputService.displayFinalScores();
   }
 
   public void playRound(PersistenceContext ctx, int round) {
     log.info("playRound:: Starting new game with players {}", state.getPlayers().stream().map(Player::getName).toList());
     persistenceOrchestrator.startRound(ctx, round);
-    playerOutputService.displayGameHeader(round);
+    outputService.displayGameHeader(round);
     deck.initializeDeck();
     state.initializeState();
     distributeCards();
@@ -62,7 +62,7 @@ public class GameEngine {
 
     log.info("playRound:: Reached turn safety limit of {}, ending game to prevent infinite loop", properties.getTurnSafetyLimit());
     persistenceOrchestrator.endRound(ctx, true);
-    playerOutputService.displaySafetyLimit();
+    outputService.displaySafetyLimit();
   }
 
   private void distributeCards() {
@@ -82,9 +82,9 @@ public class GameEngine {
   private boolean playTurn() {
     var player = state.getCurrentPlayer();
     log.info("playTurn:: Starting turn for player {}", player.getName());
-    playerOutputService.displayPlayerTurn(player, state.getUpCard(), state.getCalledColor());
+    outputService.displayPlayerTurn(player, state.getUpCard(), state.getCalledColor());
     if (state.getPendingDraw() > 0) {
-      playerOutputService.displayPendingDraw(player, state.getPendingDraw());
+      outputService.displayPendingDraw(player, state.getPendingDraw());
     }
 
     int chosen = resolveCardChoice(player);
@@ -102,17 +102,15 @@ public class GameEngine {
 
   private int resolveCardChoice(Player player) {
     int pendingAmount = state.getPendingDrawAmount();
-    int chosen = getPlayerInputService(player).getCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
+    int chosen = inputServiceProvider.get(player).getCardChoice(player.getHand(), state.getUpCard(), state.getCalledColor(), pendingAmount);
 
     if (chosen == -1 && state.getPendingDraw() == 0) {
       var drawn = deck.draw();
       player.addCard(drawn);
-      playerOutputService.displayDraw(player, drawn);
+      outputService.displayDraw(player, drawn);
 
       if (rulesValidator.isValid(drawn, state.getUpCard(), state.getCalledColor())) {
-        if (player.getType() != PlayerType.HUMAN) {
-          chosen = player.getHand().size() - 1;
-        } else if (getPlayerInputService(player).confirmDrawnCard(drawn)) {
+        if (inputServiceProvider.get(player).confirmDrawnCard(drawn)) {
           chosen = player.getHand().size() - 1;
         }
       }
@@ -125,7 +123,7 @@ public class GameEngine {
     var hand = player.getHand();
     if (chosen >= hand.size()) {
       log.warn("executePlay:: Player {} selected invalid index {}, hand size is {}", player.getName(), chosen, hand.size());
-      playerOutputService.displayInvalidIndexPenalty(player);
+      outputService.displayInvalidIndexPenalty(player);
       hand.add(deck.draw());
       state.advancePlayer();
       return false;
@@ -136,13 +134,13 @@ public class GameEngine {
 
     if (state.getPendingDraw() > 0) {
       if (!rulesValidator.canStack(card, state.getPendingDrawAmount())) {
-        playerOutputService.displayIllegalPlayPenalty(player, card);
+        outputService.displayIllegalPlayPenalty(player, card);
         hand.add(deck.draw());
         state.advancePlayer();
         return false;
       }
     } else if (!rulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
-      playerOutputService.displayIllegalPlayPenalty(player, card);
+      outputService.displayIllegalPlayPenalty(player, card);
       hand.add(deck.draw());
       state.advancePlayer();
       return false;
@@ -152,20 +150,21 @@ public class GameEngine {
     deck.discard(state.getUpCard());
     state.setUpCard(card);
     state.setCalledColor(null);
-    playerOutputService.displayPlay(player, card);
+    outputService.displayPlay(player, card);
 
     if (hand.size() == 1) {
-      playerOutputService.displayUno(player);
+      outputService.displayUno(player);
     }
 
     if (hand.isEmpty()) {
       int points = scoreOpponents(state.getCurrentPlayerIndex());
       player.addScore(points);
-      playerOutputService.displayWin(player, points);
+      outputService.displayWin(player, points);
       return true;
     }
 
-    applyCardEffect(player, card);
+    log.debug("applyCardEffect:: Applying effect of card {} for player {}", card, player.getName());
+    cardEffectStrategyProvider.get(card.rank()).execute(state, card, player);
     return false;
   }
 
@@ -183,60 +182,12 @@ public class GameEngine {
     return points;
   }
 
-  private void applyCardEffect(Player player, Card card) {
-    log.debug("applyCardEffect:: Applying effect of card {} for player {}", card, player.getName());
-    switch (card.rank()) {
-      case SKIP -> {
-        state.advancePlayer();
-        state.advancePlayer();
-      }
-      case REVERSE -> {
-        state.reverseDirection();
-        if (state.playerCount() == 2) {
-          state.advancePlayer();
-          state.advancePlayer();
-        } else {
-          state.advancePlayer();
-        }
-      }
-      case DRAW -> {
-        var toDraw = 2;
-        if (card.color() == CardColor.WILD) {
-          triggerColorUpdate(player);
-        }
-        if (state.getPendingDraw() > 0) {
-          state.addPendingDraw(toDraw);
-        } else {
-          state.startPendingDraw(toDraw);
-        }
-        state.advancePlayer();
-      }
-      case CHANGE -> {
-        triggerColorUpdate(player);
-        state.advancePlayer();
-      }
-      default -> state.advancePlayer();
-    }
-  }
-
   private void resolvePendingDraw(Player player) {
     int count = state.getPendingDraw();
     for (int i = 0; i < count; i++) {
       player.addCard(deck.draw());
     }
-    playerOutputService.displayDraws(player, count);
-  }
-
-  private void triggerColorUpdate(Player player) {
-    state.setCalledColor(getPlayerInputService(player).getCardColor(player.getHand()));
-    playerOutputService.displayCalledColor(player, state.getCalledColor());
-  }
-
-  private PlayerInputService getPlayerInputService(Player player) {
-    return playerInputServices.stream()
-        .filter(service -> service.supportsPlayer(player.getType()))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("No input service found for player type: " + player.getType()));
+    outputService.displayDraws(player, count);
   }
 
 }

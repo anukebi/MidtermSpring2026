@@ -44,7 +44,6 @@ public class CliInputService implements PlayerInputService {
         }
       } catch (Exception ignored) {}
 
-      // Move login out
       for (int i = 0; i < hand.size(); i++) {
         if (hand.get(i).code().equals(input)) {
           if (pendingDrawAmount > 0) {
