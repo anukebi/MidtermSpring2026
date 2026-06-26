@@ -24,7 +24,7 @@ public class UnoCli implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		if (gameProperties.isHelp()) {
-			System.out.println("Usage: scripts/run.sh [--bots N] [--games N] [--human] [--quiet] [--seed N]");
+			System.out.println("Usage: scripts/run.sh [--bots=N] [--games=N] [--human] [--quiet] [--seed=N] [--target=N] [--help]");
 			if (gameProperties.isCliOnly()) System.exit(0);
 			return;
 		}
