@@ -72,6 +72,11 @@ public class BotInputService implements PlayerInputService {
   }
 
   @Override
+  public boolean awaitConfirmUno() {
+    return true;
+  }
+
+  @Override
   public boolean supportsPlayer(PlayerType playerType) {
     return playerType == PlayerType.BOT;
   }

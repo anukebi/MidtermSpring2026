@@ -2,8 +2,8 @@ package edu.kiu.uno.config;
 
 import java.io.PrintStream;
 import java.util.Random;
-import java.util.Scanner;
 
+import edu.kiu.uno.util.ScannerInputProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,8 +24,8 @@ public class UnoConfiguration {
 	}
 
 	@Bean
-	public Scanner inputScanner() {
-		return new Scanner(System.in);
+	public ScannerInputProvider scannerInputProvider() {
+		return new ScannerInputProvider(System.in);
 	}
 
 	@Bean

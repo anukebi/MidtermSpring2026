@@ -19,7 +19,7 @@ public class CardEffectStrategyProvider implements StrategyProvider<CardRank, Ca
     return cardEffectStrategies.stream()
         .filter(strategy -> strategy.supports(cardRank))
         .findFirst()
-        .orElseThrow(() -> new MissingStrategyException("No input service found for player type: " + cardRank));
+        .orElseThrow(() -> new MissingStrategyException("No card effect strategy found for rank: " + cardRank));
   }
 
 }

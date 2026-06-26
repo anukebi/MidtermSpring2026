@@ -22,6 +22,8 @@ public class GameProperties {
   private boolean help = false;
   private String query = null;
   private boolean cliOnly = true;
+  private int target = 500;
+  private long unoTimeout = 2000L;
   private long turnSafetyLimit = 3000L;
 
 }

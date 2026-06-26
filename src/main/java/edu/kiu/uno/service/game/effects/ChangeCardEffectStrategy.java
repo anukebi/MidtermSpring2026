@@ -18,7 +18,7 @@ public class ChangeCardEffectStrategy extends CardEffectStrategy {
 
   @Override
   public boolean supports(CardRank cardRank) {
-    return cardRank == CardRank.SKIP;
+    return cardRank == CardRank.CHANGE;
   }
 
   @Override

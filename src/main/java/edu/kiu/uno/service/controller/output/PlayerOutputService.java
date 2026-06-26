@@ -14,6 +14,8 @@ public interface PlayerOutputService {
 
   void displayDraw(Player player, Card drawn);
 
+  void displayMissedUnoPenalty(Player player);
+
   void displayInvalidIndexPenalty(Player player);
 
   void displayIllegalPlayPenalty(Player player, Card card);

@@ -14,6 +14,8 @@ public interface PlayerInputService {
 
   boolean confirmDrawnCard(Card drawn);
 
+  boolean awaitConfirmUno();
+
   boolean supportsPlayer(PlayerType playerType);
 
 }

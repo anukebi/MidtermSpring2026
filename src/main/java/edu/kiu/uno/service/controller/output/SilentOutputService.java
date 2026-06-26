@@ -23,6 +23,9 @@ public class SilentOutputService implements PlayerOutputService {
   public void displayDraw(Player player, Card drawn) { }
 
   @Override
+  public void displayMissedUnoPenalty(Player player) { }
+
+  @Override
   public void displayInvalidIndexPenalty(Player player) { }
 
   @Override

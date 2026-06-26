@@ -16,7 +16,7 @@ public class ScoreCalculationService {
 
   private int calculateScore(GameState state) {
     return state.getPlayers().stream()
-        .filter(p -> Objects.equals(p, state.getCurrentPlayer()))
+        .filter(p -> !Objects.equals(p, state.getCurrentPlayer()))
         .flatMap(player -> player.getHand().stream())
         .map(Card::points)
         .reduce(0, Integer::sum);

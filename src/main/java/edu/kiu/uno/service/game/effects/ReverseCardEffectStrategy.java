@@ -13,7 +13,7 @@ public class ReverseCardEffectStrategy extends CardEffectStrategy {
 
   @Override
   public boolean supports(CardRank cardRank) {
-    return cardRank == CardRank.SKIP;
+    return cardRank == CardRank.REVERSE;
   }
 
   @Override

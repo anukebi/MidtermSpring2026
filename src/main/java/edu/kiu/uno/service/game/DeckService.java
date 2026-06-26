@@ -45,6 +45,7 @@ public class DeckService {
       addCard(color, CardRank.REVERSE, deckProperties.getReverse());
       addCard(color, CardRank.DRAW, 2, deckProperties.getDrawTwo());
     }
+    deck.shuffle();
   }
 
   public void discard(Card card) {
@@ -53,13 +54,17 @@ public class DeckService {
   }
 
   public Card draw() {
-    var card = deck.draw();
-    log.info("draw:: Drew card {} from draw pile", card);
-    return card;
+    return draw(false);
   }
 
   public Card draw(Player player) {
-    return player.addCard(draw());
+    return player.addCard(draw(true));
+  }
+
+  private Card draw(boolean quiet) {
+    var card = deck.draw();
+    if (!quiet) log.info("draw:: Drew card {} from draw pile", card);
+    return card;
   }
   
   public void distribute(GameState state) {

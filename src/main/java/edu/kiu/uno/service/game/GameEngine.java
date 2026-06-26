@@ -3,6 +3,7 @@ package edu.kiu.uno.service.game;
 import edu.kiu.uno.service.controller.input.PlayerInputServiceProvider;
 import edu.kiu.uno.service.controller.output.PlayerOutputService;
 import edu.kiu.uno.service.game.effects.CardEffectStrategyProvider;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import edu.kiu.uno.config.properties.GameProperties;
@@ -11,6 +12,8 @@ import edu.kiu.uno.service.game.GamePersistenceOrchestrator.PersistenceContext;
 import edu.kiu.uno.util.RulesValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import java.util.Comparator;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -32,6 +35,11 @@ public class GameEngine {
     var ctx = new PersistenceContext();
     persistenceOrchestrator.startGame(ctx);
     for (int g = 1; g <= properties.getGames(); g++) {
+      var highScorePlayer = getHighestScorePlayerPair();
+      if (highScorePlayer.getRight() >= properties.getTarget()) {
+        log.info("playGame:: Player {} has reached the winning score of {}, ending game", highScorePlayer.getLeft().getName(), properties.getTarget());
+        break;
+      }
       log.info("playGame:: Starting game {} of {}", g, properties.getGames());
       playRound(ctx, g);
     }
@@ -96,6 +104,7 @@ public class GameEngine {
     log.debug("executePlay:: Player {} chose card {} with pending draw {}", player.getName(), card, state.getPendingDraw());
 
     if (state.getPendingDraw() > 0 && !rulesValidator.canStack(card, state.getPendingDrawAmount()) || !rulesValidator.isValid(card, state.getUpCard(), state.getCalledColor())) {
+      player.addCard(card);
       deckService.draw(player);
       state.advancePlayer();
       outputService.displayIllegalPlayPenalty(player, card);
@@ -109,7 +118,13 @@ public class GameEngine {
     outputService.displayPlay(player, card);
 
     if (player.cardCount() == 1) {
-      outputService.displayUno(player);
+      if (inputServiceProvider.get(player).awaitConfirmUno()) {
+        outputService.displayUno(player);
+      } else {
+        outputService.displayMissedUnoPenalty(player);
+        deckService.draw(player);
+        deckService.draw(player);
+      }
     } else if (player.cardCount() == 0) {
       var score = scoreCalculationService.updatePlayerScore(state);
       outputService.displayWin(player, score);
@@ -144,6 +159,13 @@ public class GameEngine {
     }
     state.clearPendingDraw();
     outputService.displayDraws(player, count);
+  }
+
+  private Pair<Player, Integer> getHighestScorePlayerPair() {
+    return state.getPlayers().stream()
+        .max(Comparator.comparingInt(Player::getTotalScore))
+        .map(p -> Pair.of(p, p.getTotalScore()))
+        .orElse(null);
   }
 
 }

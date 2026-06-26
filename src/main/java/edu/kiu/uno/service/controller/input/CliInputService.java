@@ -2,9 +2,12 @@ package edu.kiu.uno.service.controller.input;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import edu.kiu.uno.config.properties.GameProperties;
 import edu.kiu.uno.model.player.PlayerType;
+import edu.kiu.uno.util.ScannerInputProvider;
 import org.springframework.stereotype.Service;
 
 import edu.kiu.uno.model.card.Card;
@@ -16,9 +19,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CliInputService implements PlayerInputService {
 
-  private final Scanner scanner;
+  private final ScannerInputProvider inputProvider;
   private final PrintStream printStream;
   private final RulesValidator rulesValidator;
+  private final GameProperties gameProperties;
 
   @Override
   public int getCardChoice(List<Card> hand, Card upCard, CardColor calledColor, int pendingDrawAmount) {
@@ -28,7 +32,7 @@ public class CliInputService implements PlayerInputService {
       } else {
         printStream.print("Choose card index/code or draw: ");
       }
-      String input = scanner.nextLine().trim().toUpperCase();
+      String input = inputProvider.getInput().toUpperCase();
       if (input.equals("DRAW")) {
         return -1;
       }
@@ -66,7 +70,7 @@ public class CliInputService implements PlayerInputService {
   public CardColor getCardColor(List<Card> hand) {
     while (true) {
       printStream.print("Call color R/Y/G/B: ");
-      var input = scanner.nextLine().trim().toUpperCase();
+      var input = inputProvider.getInput().toUpperCase();
       try {
         return CardColor.fromCode(input);
       } catch (Exception e) {
@@ -77,8 +81,15 @@ public class CliInputService implements PlayerInputService {
 
   public boolean confirmDrawnCard(Card drawn) {
     printStream.print("Play drawn card " + drawn + "? y/n: ");
-    var answer = scanner.nextLine();
+    var answer = inputProvider.getInput();
     return answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes");
+  }
+
+  @Override
+  public boolean awaitConfirmUno() {
+    printStream.println("You have one card left! Type 'UNO' to confirm!");
+    var answer = inputProvider.getInput(gameProperties.getUnoTimeout(), TimeUnit.MILLISECONDS);
+    return Optional.ofNullable(answer).map("UNO"::equalsIgnoreCase).orElse(false);
   }
 
   @Override

@@ -1,7 +1,7 @@
 package edu.kiu.uno.util;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class RulesValidator {
   }
 
   public boolean isValid(Card card, CardColor calledColor, CardRank calledRank, Integer calledNumber) {
-    if (Set.of(CardColor.WILD, calledColor).contains(card.color())) {
+    if (List.of(CardColor.WILD, calledColor).contains(card.color())) {
       return true;
     }
 

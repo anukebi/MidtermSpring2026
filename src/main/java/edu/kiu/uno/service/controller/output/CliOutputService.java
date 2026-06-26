@@ -43,6 +43,11 @@ public class CliOutputService implements PlayerOutputService {
   }
 
   @Override
+  public void displayMissedUnoPenalty(Player player) {
+    out.println(player.getName() + " failed to call UNO and draws a penalty card.");
+  }
+
+  @Override
   public void displayInvalidIndexPenalty(Player player) {
     out.println(player.getName() + " selected an invalid index and draws a penalty card.");
   }
