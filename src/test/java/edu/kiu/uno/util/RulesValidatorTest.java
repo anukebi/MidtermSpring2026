@@ -48,4 +48,10 @@ public class RulesValidatorTest {
 		check("+2 does not stack on pending +4", !rulesValidator.canStack(plusTwo, 4));
 	}
 
+	@Test
+	void drawnCardCanBePlayedWhenLegal() {
+		check("drawn card legal by color",
+				rulesValidator.isValid(cardMapper.getCard("R9"), cardMapper.getCard("R5"), null));
+	}
+
 }

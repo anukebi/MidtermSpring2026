@@ -24,7 +24,7 @@ public class DrawCardEffectStrategy extends ChangeCardEffectStrategy {
 
   @Override
   protected void doExecute(GameState state, Card card, Player player) {
-    var toDraw = 2;
+    int toDraw = card.value() != null ? card.value() : 2;
     if (card.color() == CardColor.WILD) {
       super.doExecute(state, card, player);
     }
